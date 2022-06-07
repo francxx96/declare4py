@@ -1,0 +1,16 @@
+activity IV_Antibiotics
+activity ER_Triage
+activity ER_Registration
+activity ER_Sepsis_Triage
+Existence2[ER_Triage] | |2214,9328,s
+Alternate Response[ER_Registration, ER_Sepsis_Triage] | | |2815,5584,s
+Alternate Succession[ER_Registration, ER_Triage] | | |2214,9328,s
+Existence3[ER_Sepsis_Triage] | |4375,9566,s
+Chain Succession[ER_Registration, IV_Antibiotics] | | |344,3802,s
+Chain Response[ER_Triage, ER_Sepsis_Triage] | | |238,1048,s
+Existence[ER_Registration] | |0,0,h
+Existence[IV_Antibiotics] | |344,3802,s
+Chain Succession[IV_Antibiotics, ER_Triage] | | |734,6409,s
+Succession[ER_Triage, ER_Sepsis_Triage] | | |601,1048,s
+Chain Response[IV_Antibiotics, ER_Sepsis_Triage] | | |1782,2471,s
+Chain Precedence[ER_Sepsis_Triage, ER_Triage] | | |673,674,s
