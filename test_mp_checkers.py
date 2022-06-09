@@ -58,4 +58,4 @@ def run_all_mp_checkers(IN_LOG_PATH, IN_DECL_PATH):
             return False
 
 
-run_all_mp_checkers("sepsis.xes", "sepsis.decl")
+run_all_mp_checkers("Sepsis Cases.xes.gz", "sepsis model.decl")
