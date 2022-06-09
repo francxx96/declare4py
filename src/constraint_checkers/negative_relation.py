@@ -2,6 +2,9 @@ from src.enums import TraceState
 from src.models import CheckerResult
 from datetime import timedelta
 
+# Defining global and local functions/variables to use within eval() to prevent code injection
+glob = {'__builtins__': None}
+
 
 # mp-not-responded-existence constraint checker
 # Description:
@@ -18,7 +21,8 @@ def mp_not_responded_existence(trace, done, a, b, rules):
     for event in trace:
         if event["concept:name"] == a:
             A = event
-            if eval(activation_rules):
+            locl = {'A': A}
+            if eval(activation_rules, glob, locl):
                 pendings.append(event)
     for event in trace:
         if len(pendings) == 0:
@@ -26,7 +30,8 @@ def mp_not_responded_existence(trace, done, a, b, rules):
         if event["concept:name"] == b:
             T = event
             for A in reversed(pendings):
-                if eval(correlation_rules) and eval(time_rule):
+                locl = {'A': A, 'T': T, 'timedelta': timedelta, 'abs': abs, 'float': float}
+                if eval(correlation_rules, glob, locl) and eval(time_rule, glob, locl):
                     pendings.remove(A)
                     num_violations += 1
     if done:
@@ -66,12 +71,14 @@ def mp_not_response(trace, done, a, b, rules):
     for event in trace:
         if event["concept:name"] == a:
             A = event
-            if eval(activation_rules):
+            locl = {'A': A}
+            if eval(activation_rules, glob, locl):
                 pendings.append(event)
         if len(pendings) > 0 and event["concept:name"] == b:
             T = event
             for A in reversed(pendings):
-                if eval(correlation_rules) and eval(time_rule):
+                locl = {'A': A, 'T': T, 'timedelta': timedelta, 'abs': abs, 'float': float}
+                if eval(correlation_rules, glob, locl) and eval(time_rule, glob, locl):
                     pendings.remove(A)
                     num_violations += 1
     if done:
@@ -110,12 +117,14 @@ def mp_not_chain_response(trace, done, a, b, rules):
     for index, event in enumerate(trace):
         if event["concept:name"] == a:
             A = event
-            if eval(activation_rules):
+            locl = {'A': A}
+            if eval(activation_rules, glob, locl):
                 num_activations += 1
                 if index < len(trace) - 1:
                     if trace[index + 1]["concept:name"] == b:
                         T = trace[index + 1]
-                        if eval(correlation_rules) and eval(time_rule):
+                        locl = {'A': A, 'T': T, 'timedelta': timedelta, 'abs': abs, 'float': float}
+                        if eval(correlation_rules, glob, locl) and eval(time_rule, glob, locl):
                             num_violations += 1
                 else:
                     if not done:
@@ -154,10 +163,12 @@ def mp_not_precedence(trace, done, a, b, rules):
             Ts.append(event)
         if event["concept:name"] == b:
             A = event
-            if eval(activation_rules):
+            locl = {'A': A}
+            if eval(activation_rules, glob, locl):
                 num_activations += 1
                 for T in Ts:
-                    if eval(correlation_rules) and eval(time_rule):
+                    locl = {'A': A, 'T': T, 'timedelta': timedelta, 'abs': abs, 'float': float}
+                    if eval(correlation_rules, glob, locl) and eval(time_rule, glob, locl):
                         num_violations += 1
                         break
     num_fulfillments = num_activations - num_violations
@@ -191,11 +202,13 @@ def mp_not_chain_precedence(trace, done, a, b, rules):
     for index, event in enumerate(trace):
         if event["concept:name"] == b:
             A = event
-            if eval(activation_rules):
+            locl = {'A': A}
+            if eval(activation_rules, glob, locl):
                 num_activations += 1
                 if index != 0 and trace[index - 1]["concept:name"] == a:
                     T = trace[index - 1]
-                    if eval(correlation_rules) and eval(time_rule):
+                    locl = {'A': A, 'T': T, 'timedelta': timedelta, 'abs': abs, 'float': float}
+                    if eval(correlation_rules, glob, locl) and eval(time_rule, glob, locl):
                         num_violations += 1
     num_fulfillments = num_activations - num_violations
 

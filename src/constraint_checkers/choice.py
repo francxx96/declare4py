@@ -2,6 +2,9 @@ from src.enums import TraceState
 from src.models import CheckerResult
 from datetime import timedelta
 
+# Defining global and local functions/variables to use within eval() to prevent code injection
+glob = {'__builtins__': None}
+
 
 # mp-choice constraint checker
 # Description:
@@ -13,7 +16,8 @@ def mp_choice(trace, done, a, b, rules):
     T = trace[0]
     for A in trace:
         if A["concept:name"] == a or A["concept:name"] == b:
-            if eval(activation_rules) and eval(time_rule):
+            locl = {'A': A, 'T': T, 'timedelta': timedelta, 'abs': abs, 'float': float}
+            if eval(activation_rules, glob, locl) and eval(time_rule, glob, locl):
                 a_or_b_occurs = True
                 break
 
@@ -38,11 +42,12 @@ def mp_exclusive_choice(trace, done, a, b, rules):
     b_occurs = False
     T = trace[0]
     for A in trace:
+        locl = {'A': A, 'T': T, 'timedelta': timedelta, 'abs': abs, 'float': float}
         if not a_occurs and A["concept:name"] == a:
-            if eval(activation_rules) and eval(time_rule):
+            if eval(activation_rules, glob, locl) and eval(time_rule, glob, locl):
                 a_occurs = True
         if not b_occurs and A["concept:name"] == b:
-            if eval(activation_rules) and eval(time_rule):
+            if eval(activation_rules, glob, locl) and eval(time_rule, glob, locl):
                 b_occurs = True
         if a_occurs and b_occurs:
             break
