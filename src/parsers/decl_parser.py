@@ -3,37 +3,83 @@ from src.models import DeclModel
 import re
 
 
-def modify_condition(condition):
-    if condition.strip() == "":
-        condition = "True"
-        return condition
+def parse_data_cond(cond):
+    cond = cond.strip()
+    if cond == "":
+        return "True"
 
-    if "is" in condition:
-        condition = condition.replace("is", "==")
+    # List containing translations from decl format to python
+    py_cond = ""
+    fill_enum_set = False
 
-    words = condition.split()
+    while cond:
+        if cond.startswith("(") or cond.startswith(")"):
+            py_cond = py_cond + " " + cond[0]
+            cond = cond[1:].lstrip()
+            fill_enum_set = py_cond.endswith(" in (")
 
-    for index, word in enumerate(words):
-        if "A." in word:
-            words[index] = 'A["' + word[2:] + '"]'
-            if not words[index + 2].isdigit():
-                words[index + 2] = '"' + words[index + 2] + '"'
+        else:
+            if not fill_enum_set:
+                next_word = re.split(r'[\s()]+', cond)[0]
+                cond = cond[len(next_word):].lstrip()
 
-        elif "T." in word:
-            words[index] = 'T["' + word[2:] + '"]'
-            if not words[index + 2].isdigit():
-                words[index + 2] = '"' + words[index + 2] + '"'
+                if re.match(r'^[AaTt]\.', next_word):
+                    py_cond = py_cond + " " + '"' + next_word[2:] + '" in ' + next_word[0] \
+                              + " and " + next_word[0] + '["' + next_word[2:] + '"]'
 
-        elif word == "same":
-            words[index] = 'A["' + words[index + 1] + '"] == T["' + words[index + 1] + '"]'
-            words[index + 1] = ""
+                elif next_word.lower() == "is":
+                    if cond.lower().startswith("not"):
+                        cond = cond[3:].lstrip()
+                        py_cond = py_cond + " !="
+                    else:
+                        py_cond = py_cond + " =="
 
-    words = list(filter(lambda word : word != "", words))
-    condition = " ".join(words)
-    return condition
+                    attr = re.split(r'[\s()]+', cond)[0]
+                    cond = cond[len(attr):].lstrip()
+
+                    py_cond = py_cond + ' "' + attr + '"'
+
+                elif next_word == "=":
+                    py_cond = py_cond + " =="
+
+                elif next_word.lower() == "and" or next_word.lower() == "or":
+                    py_cond = py_cond + " " + next_word.lower()
+
+                elif next_word.lower() == "same":
+                    attr = re.split(r'[\s()]+', cond)[0]
+                    cond = cond[len(attr):].lstrip()
+
+                    py_cond = py_cond + " " + attr + " in A and " + attr + " in T " \
+                              + 'and A["' + attr + '"] == T["' + attr + '"]'
+
+                elif next_word.lower() == "different":
+                    attr = re.split(r'[\s()]+', cond)[0]
+                    cond = cond[len(attr):].lstrip()
+
+                    py_cond = py_cond + " " + attr + " in A and " + attr + " in T " \
+                              + 'and A["' + attr + '"] != T["' + attr + '"]'
+
+                elif next_word.lower() == "true":
+                    py_cond = py_cond + " True"
+
+                elif next_word.lower() == "false":
+                    py_cond = py_cond + " False"
+
+                else:
+                    py_cond = py_cond + " " + next_word
+
+            else:
+                end_idx = cond.find(')')
+                enum_set = re.split(r',\s+', cond[:end_idx])
+                enum_set = [x.strip() for x in enum_set]
+
+                py_cond = py_cond + ' "' + '", "'.join(enum_set) + '"'
+                cond = cond[end_idx:].lstrip()
+
+    return py_cond.strip()
 
 
-def modify_temporal_condition(condition):
+def parse_temporal_cond(condition):
     if condition.strip() == "":
         condition = "True"
         return condition
@@ -78,21 +124,21 @@ def parse_decl(path):
 
                 n = 1 if not any(map(str.isdigit, key)) else int(re.search(r'\d+', key).group())
 
-                tmp['condition'] = [modify_condition(line.split("|")[1]),
+                tmp['condition'] = [parse_data_cond(line.split("|")[1]),
                                     n,
-                                    modify_temporal_condition(line.split("|")[-1])]
+                                    parse_temporal_cond(line.split("|")[-1])]
                 result.checkers.append(tmp)
 
             elif line.startswith(Template.INIT):
 
-                tmp['condition'] = [modify_condition(line.split("|")[1])]
+                tmp['condition'] = [parse_data_cond(line.split("|")[1])]
                 result.checkers.append(tmp)
 
             elif (line.startswith(Template.CHOICE)
                   or line.startswith(Template.EXCLUSIVE_CHOICE)):
 
-                tmp['condition'] = [modify_condition(line.split("|")[1]),
-                                    modify_temporal_condition(line.split("|")[-1])]
+                tmp['condition'] = [parse_data_cond(line.split("|")[1]),
+                                    parse_temporal_cond(line.split("|")[-1])]
                 result.checkers.append(tmp)
 
             elif (line.startswith(Template.RESPONDED_EXISTENCE)
@@ -108,9 +154,9 @@ def parse_decl(path):
                   or line.startswith(Template.NOT_PRECEDENCE)
                   or line.startswith(Template.NOT_CHAIN_PRECEDENCE)):
 
-                tmp['condition'] = [modify_condition(line.split("|")[1]),
-                                    modify_condition(line.split("|")[2]),
-                                    modify_temporal_condition(line.split("|")[-1])]
+                tmp['condition'] = [parse_data_cond(line.split("|")[1]),
+                                    parse_data_cond(line.split("|")[2]),
+                                    parse_temporal_cond(line.split("|")[-1])]
                 result.checkers.append(tmp)
 
     fo.close()
