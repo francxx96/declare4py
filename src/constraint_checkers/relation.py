@@ -1,6 +1,6 @@
 from src.enums import TraceState
 from src.models import CheckerResult
-from src.parsers import parse_data_cond, parse_temporal_cond
+from src.parsers import parse_data_cond, parse_time_cond
 from datetime import timedelta
 
 # Defining global and local functions/variables to use within eval() to prevent code injection
@@ -16,7 +16,7 @@ glob = {'__builtins__': None}
 def mp_responded_existence(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
-    time_rule = parse_temporal_cond(rules["time"])
+    time_rule = parse_time_cond(rules["time"])
 
     pendings = []
     num_fulfillments = 0
@@ -74,7 +74,7 @@ def mp_responded_existence(trace, done, a, b, rules):
 def mp_response(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
-    time_rule = parse_temporal_cond(rules["time"])
+    time_rule = parse_time_cond(rules["time"])
 
     pendings = []
     num_fulfillments = 0
@@ -129,7 +129,7 @@ def mp_response(trace, done, a, b, rules):
 def mp_alternate_response(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
-    time_rule = parse_temporal_cond(rules["time"])
+    time_rule = parse_time_cond(rules["time"])
 
     pending = None
     num_activations = 0
@@ -181,7 +181,7 @@ def mp_alternate_response(trace, done, a, b, rules):
 def mp_chain_response(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
-    time_rule = parse_temporal_cond(rules["time"])
+    time_rule = parse_time_cond(rules["time"])
 
     num_activations = 0
     num_fulfillments = 0
@@ -232,7 +232,7 @@ def mp_chain_response(trace, done, a, b, rules):
 def mp_precedence(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
-    time_rule = parse_temporal_cond(rules["time"])
+    time_rule = parse_time_cond(rules["time"])
 
     num_activations = 0
     num_fulfillments = 0
@@ -282,7 +282,7 @@ def mp_precedence(trace, done, a, b, rules):
 def mp_alternate_precedence(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
-    time_rule = parse_temporal_cond(rules["time"])
+    time_rule = parse_time_cond(rules["time"])
 
     num_activations = 0
     num_fulfillments = 0
@@ -330,7 +330,7 @@ def mp_alternate_precedence(trace, done, a, b, rules):
 def mp_chain_precedence(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
-    time_rule = parse_temporal_cond(rules["time"])
+    time_rule = parse_time_cond(rules["time"])
 
     num_activations = 0
     num_fulfillments = 0

@@ -1,6 +1,6 @@
 from src.enums import TraceState
 from src.models import CheckerResult
-from src.parsers import parse_data_cond, parse_temporal_cond
+from src.parsers import parse_data_cond, parse_time_cond
 from datetime import timedelta
 
 # Defining global and local functions/variables to use within eval() to prevent code injection
@@ -11,7 +11,7 @@ glob = {'__builtins__': None}
 # Description:
 def mp_choice(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
-    time_rule = parse_temporal_cond(rules["time"])
+    time_rule = parse_time_cond(rules["time"])
 
     a_or_b_occurs = False
     for A in trace:
@@ -36,7 +36,7 @@ def mp_choice(trace, done, a, b, rules):
 # Description:
 def mp_exclusive_choice(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
-    time_rule = parse_temporal_cond(rules["time"])
+    time_rule = parse_time_cond(rules["time"])
 
     a_occurs = False
     b_occurs = False

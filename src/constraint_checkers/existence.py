@@ -1,6 +1,6 @@
 from src.enums import *
 from src.models import CheckerResult
-from src.parsers import parse_data_cond, parse_temporal_cond
+from src.parsers import parse_data_cond, parse_time_cond
 from datetime import timedelta
 
 # Defining global and local functions/variables to use within eval() to prevent code injection
@@ -13,7 +13,7 @@ glob = {'__builtins__': None}
 # event a must occur at least n-times in the trace.
 def mp_existence(trace, done, a, rules):
     activation_rules = parse_data_cond(rules["activation"])
-    time_rule = parse_temporal_cond(rules["time"])
+    time_rule = parse_time_cond(rules["time"])
 
     num_activations = 0
     for A in trace:
@@ -40,7 +40,7 @@ def mp_existence(trace, done, a, rules):
 # event a may occur at most n − times in the trace.
 def mp_absence(trace, done, a, rules):
     activation_rules = parse_data_cond(rules["activation"])
-    time_rule = parse_temporal_cond(rules["time"])
+    time_rule = parse_time_cond(rules["time"])
 
     num_activations = 0
     for A in trace:
@@ -81,7 +81,7 @@ def mp_init(trace, done, a, rules):
 # Description:
 def mp_exactly(trace, done, a, rules):
     activation_rules = parse_data_cond(rules["activation"])
-    time_rule = parse_temporal_cond(rules["time"])
+    time_rule = parse_time_cond(rules["time"])
 
     num_activations = 0
     for A in trace:

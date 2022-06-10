@@ -17,7 +17,7 @@ def print_results(log, results, constraints):
         print()
 
 
-def run_all_mp_checkers_traces(log_path, decl_path, consider_vacuity):
+def conformance_checking(log_path, decl_path, consider_vacuity):
     log = pm4py.read_xes(log_path)
     model = parse_decl(decl_path)
     rules = {"vacuous_satisfaction": consider_vacuity}

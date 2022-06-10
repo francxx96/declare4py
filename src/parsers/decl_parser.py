@@ -79,7 +79,7 @@ def parse_data_cond(cond):
     return py_cond.strip()
 
 
-def parse_temporal_cond(condition):
+def parse_time_cond(condition):
     if condition.strip() == "":
         condition = "True"
         return condition
