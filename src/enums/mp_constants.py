@@ -25,8 +25,8 @@ class Template(str, Enum):
     NOT_CHAIN_PRECEDENCE = "Not Chain Precedence"
 
 
-class TraceState(Enum):
-    VIOLATED = 0
-    SATISFIED = 1
-    POSSIBLY_VIOLATED = 2
-    POSSIBLY_SATISFIED = 3
+class TraceState(str, Enum):
+    VIOLATED = "Violated"
+    SATISFIED = "Satisfied"
+    POSSIBLY_VIOLATED = "Possibly Violated"
+    POSSIBLY_SATISFIED = "Possibly Satisfied"

@@ -84,13 +84,13 @@ def parse_temporal_cond(condition):
         condition = "True"
         return condition
 
-    if condition.strip().split(",")[2] == "s":
+    if re.split(r'\s*,\s*', condition.strip())[2].lower() == "s":
         time_measure = "seconds"
-    elif condition.strip().split(",")[2] == "m":
+    elif re.split(r'\s*,\s*', condition.strip())[2].lower() == "m":
         time_measure = "minutes"
-    elif condition.strip().split(",")[2] == "h":
+    elif re.split(r'\s*,\s*', condition.strip())[2].lower() == "h":
         time_measure = "hours"
-    elif condition.strip().split(",")[2] == "d":
+    elif re.split(r'\s*,\s*', condition.strip())[2].lower() == "d":
         time_measure = "days"
     else:
         time_measure = None
@@ -124,21 +124,18 @@ def parse_decl(path):
 
                 n = 1 if not any(map(str.isdigit, key)) else int(re.search(r'\d+', key).group())
 
-                tmp['condition'] = [parse_data_cond(line.split("|")[1]),
-                                    n,
-                                    parse_temporal_cond(line.split("|")[-1])]
+                tmp['condition'] = [line.split("|")[1], n, line.split("|")[-1]]
                 result.checkers.append(tmp)
 
             elif line.startswith(Template.INIT):
 
-                tmp['condition'] = [parse_data_cond(line.split("|")[1])]
+                tmp['condition'] = [line.split("|")[1]]
                 result.checkers.append(tmp)
 
             elif (line.startswith(Template.CHOICE)
                   or line.startswith(Template.EXCLUSIVE_CHOICE)):
 
-                tmp['condition'] = [parse_data_cond(line.split("|")[1]),
-                                    parse_temporal_cond(line.split("|")[-1])]
+                tmp['condition'] = [line.split("|")[1], line.split("|")[-1]]
                 result.checkers.append(tmp)
 
             elif (line.startswith(Template.RESPONDED_EXISTENCE)
@@ -154,9 +151,7 @@ def parse_decl(path):
                   or line.startswith(Template.NOT_PRECEDENCE)
                   or line.startswith(Template.NOT_CHAIN_PRECEDENCE)):
 
-                tmp['condition'] = [parse_data_cond(line.split("|")[1]),
-                                    parse_data_cond(line.split("|")[2]),
-                                    parse_temporal_cond(line.split("|")[-1])]
+                tmp['condition'] = [line.split("|")[1], line.split("|")[2], line.split("|")[-1]]
                 result.checkers.append(tmp)
 
     fo.close()

@@ -1,5 +1,6 @@
 from src.enums import TraceState
 from src.models import CheckerResult
+from src.parsers import parse_data_cond, parse_temporal_cond
 from datetime import timedelta
 
 # Defining global and local functions/variables to use within eval() to prevent code injection
@@ -9,14 +10,13 @@ glob = {'__builtins__': None}
 # mp-choice constraint checker
 # Description:
 def mp_choice(trace, done, a, b, rules):
-    activation_rules = rules["activation"]
-    time_rule = rules["time"]
+    activation_rules = parse_data_cond(rules["activation"])
+    time_rule = parse_temporal_cond(rules["time"])
 
     a_or_b_occurs = False
-    T = trace[0]
     for A in trace:
         if A["concept:name"] == a or A["concept:name"] == b:
-            locl = {'A': A, 'T': T, 'timedelta': timedelta, 'abs': abs, 'float': float}
+            locl = {'A': A, 'T': trace[0], 'timedelta': timedelta, 'abs': abs, 'float': float}
             if eval(activation_rules, glob, locl) and eval(time_rule, glob, locl):
                 a_or_b_occurs = True
                 break
@@ -35,14 +35,13 @@ def mp_choice(trace, done, a, b, rules):
 # mp-exclusive-choice constraint checker
 # Description:
 def mp_exclusive_choice(trace, done, a, b, rules):
-    activation_rules = rules["activation"]
-    time_rule = rules["time"]
+    activation_rules = parse_data_cond(rules["activation"])
+    time_rule = parse_temporal_cond(rules["time"])
 
     a_occurs = False
     b_occurs = False
-    T = trace[0]
     for A in trace:
-        locl = {'A': A, 'T': T, 'timedelta': timedelta, 'abs': abs, 'float': float}
+        locl = {'A': A, 'T': trace[0], 'timedelta': timedelta, 'abs': abs, 'float': float}
         if not a_occurs and A["concept:name"] == a:
             if eval(activation_rules, glob, locl) and eval(time_rule, glob, locl):
                 a_occurs = True
