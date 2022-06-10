@@ -4,10 +4,11 @@ from src.constraint_checkers import *
 import pm4py
 
 
-def print_results(log, results, decl_path):
-    fo = open(decl_path, "r+")
-    lines = fo.readlines()
-    decl_constraints = [line.strip() for line in lines if line.startswith(tuple(map(lambda c: c.value, Template)))]
+def print_results(log, results, constraints):
+    decl_constraints = []
+    for c in constraints:
+        c_str = c["key"] + '[' + c["attribute"] + '] |' + ' |'.join(c["condition"])
+        decl_constraints.append(c_str)
 
     for i in range(len(results)):
         print("Trace " + str(i + 1) + ' - "' + log[i].attributes["concept:name"] + '"')
@@ -127,7 +128,7 @@ def run_all_mp_checkers_traces(log_path, decl_path, consider_vacuity):
 
         log_results.append(trace_results)
 
-    print_results(log, log_results, decl_path)
+    print_results(log, log_results, model.checkers)
 
     return log_results
 

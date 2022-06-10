@@ -108,6 +108,7 @@ def parse_decl(path):
     result = DeclModel()
 
     for line in lines:
+        line = line.strip()
         if line.startswith('activity'):
             result.activities.append(line.split()[1])
 
@@ -124,18 +125,18 @@ def parse_decl(path):
 
                 n = 1 if not any(map(str.isdigit, key)) else int(re.search(r'\d+', key).group())
 
-                tmp['condition'] = [line.split("|")[1], n, line.split("|")[-1]]
+                tmp['condition'] = [re.split(r'\s+\|', line)[1], n, re.split(r'\s+\|', line)[-1]]
                 result.checkers.append(tmp)
 
             elif line.startswith(Template.INIT):
 
-                tmp['condition'] = [line.split("|")[1]]
+                tmp['condition'] = [re.split(r'\s+\|', line)[1]]
                 result.checkers.append(tmp)
 
             elif (line.startswith(Template.CHOICE)
                   or line.startswith(Template.EXCLUSIVE_CHOICE)):
 
-                tmp['condition'] = [line.split("|")[1], line.split("|")[-1]]
+                tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[-1]]
                 result.checkers.append(tmp)
 
             elif (line.startswith(Template.RESPONDED_EXISTENCE)
@@ -151,7 +152,7 @@ def parse_decl(path):
                   or line.startswith(Template.NOT_PRECEDENCE)
                   or line.startswith(Template.NOT_CHAIN_PRECEDENCE)):
 
-                tmp['condition'] = [line.split("|")[1], line.split("|")[2], line.split("|")[-1]]
+                tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[2], re.split(r'\s+\|', line)[-1]]
                 result.checkers.append(tmp)
 
     fo.close()
