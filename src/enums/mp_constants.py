@@ -4,8 +4,9 @@ from enum import Enum
 class Template(str, Enum):
     EXISTENCE = "Existence"
     ABSENCE = "Absence"
-    INIT = "Init"
     EXACTLY = "Exactly"
+
+    INIT = "Init"
 
     CHOICE = "Choice"
     EXCLUSIVE_CHOICE = "Exclusive Choice"

@@ -125,7 +125,8 @@ def parse_decl(path):
 
                 n = 1 if not any(map(str.isdigit, key)) else int(re.search(r'\d+', key).group())
 
-                tmp['condition'] = [re.split(r'\s+\|', line)[1], n, re.split(r'\s+\|', line)[-1]]
+                tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[-1]]
+                tmp['n'] = n
                 result.checkers.append(tmp)
 
             elif line.startswith(Template.INIT):
