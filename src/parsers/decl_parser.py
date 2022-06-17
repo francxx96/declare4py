@@ -157,4 +157,5 @@ def parse_decl(path):
                 result.checkers.append(tmp)
 
     fo.close()
+    result.set_constraints()
     return result

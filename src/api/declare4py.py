@@ -1,7 +1,7 @@
 from src.parsers import *
 from src.api import *
 import pm4py
-
+import pdb
 
 class Declare4Py:
     """
@@ -59,3 +59,35 @@ class Declare4Py:
 
     def get_supported_templates(self):
         return self.supported_templates
+
+    def get_model_activities(self):
+        return self.model.activities
+
+    def get_model_constraints(self):
+        return self.model.get_decl_model_constraints()
+    
+    def get_trace_keys(self):
+        trace_ids = []
+        for trace_id, trace in enumerate(self.log):
+            trace_ids.append((trace_id, trace.attributes["concept:name"]))
+        return trace_ids
+
+    def get_log_length(self):
+        return self.log_length
+
+    def get_log(self):
+        return self.log
+    
+    def get_log_payload(self):
+        resources = set()
+        for trace in self.log:
+            for event in trace:
+                resources.add(event["org:group"])
+        return resources
+
+    def get_log_activities(self):
+        activities = set()
+        for trace in self.log:
+            for event in trace:
+                activities.add(event["concept:name"])
+        return list(activities)
