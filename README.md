@@ -22,21 +22,23 @@ We test declare4Py with the following software configuration. However, more rece
 ### Installation
 
 ### Tutorials
-tutorials/ contains a walk-through of LTN. In order, the tutorials cover the following topics:
+The `tutorials/` folder contains a walk-through of Declare4Py. In order, the tutorials cover the following topics:
 
-    Grounding in LTN part 1: Real Logic, constants, predicates, functions, variables,
-    Grounding in LTN part 2: connectives and quantifiers (+ complement: choosing appropriate operators for learning),
-    Learning in LTN: using satisfiability of LTN formulas as a training objective,
-    Reasoning in LTN: measuring if a formula is the logical consequence of a knowledgebase.
+- [Log analysis](): simple functions to extract useful information from logs;
+- [Model checking](): check what are the traces that satisfy a given DECLARE model;
+- [Model Discovery](): discover what are the most satisfied DECLARE constraints in a given log;
+- [Query Checking]();
 
-The tutorials are implemented using Jupyter notebooks.
+The tutorials are implemented using Jupyter notebooks and consider the [Sepsis cases log](https://data.4tu.nl/articles/dataset/Sepsis_Cases_-_Event_Log/12707639).
 
 ## Repository Structure
-- ltn/core.py -- core system for defining constants, variables, predicates, functions and formulas,
-- ltn/fuzzy_ops.py -- a collection of fuzzy logic operators defined using Tensorflow primitives,
-- tutorials/ -- tutorials to start with LTN,
+- `src/api/` -- core system containing the main Declare4Py functions.
+- `src/constraint_checkers/` -- the implementation of checkers of the DECLARE constraints.
+- `src/models/` -- data models supporting the data structures for Declare4Py.
+- `test/` -- a collection of tests for computing the Declare4Py performance;
+- `tutorials/` -- tutorials to start with Declare4Py,
 
-## Citing declare4Py
+## Citing Declare4Py
 If you use declare4Py in your research, please use the following BibTeX entry.
 
 ```
