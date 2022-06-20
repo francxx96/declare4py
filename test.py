@@ -13,9 +13,10 @@ res = checker.get_log_payload()
 checker.parse_decl_model(model_path)
 ww = checker.get_trace_keys()
 first_constraint = checker.get_model_constraints()[0]
+dd=checker.activities_log_projection()
 pdb.set_trace()
 model_check_res = checker.conformance_checking(consider_vacuity=True)
-model_check_res.keys()
+
 model_check_res[(1049, 'LNA')]
 
 checker.print_conformance_results()

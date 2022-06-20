@@ -2,6 +2,10 @@ from src.parsers import *
 from src.api import *
 import pm4py
 import pdb
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori, fpmax, fpgrowth
+
 
 class Declare4Py:
     """
@@ -20,15 +24,37 @@ class Declare4Py:
     def parse_xes_log(self, log_path):
         self.log = pm4py.read_xes(log_path)
         self.log_length = len(self.log)
+        
+    def activities_log_projection(self):
+        projection = []
+        if self.log is None:
+            raise RuntimeError("You must load a log before.")
+        for trace in self.log:
+            tmp_trace = []
+            for event in trace:
+                tmp_trace.append(event["concept:name"])
+            projection.append(tmp_trace)
+        return projection
+
+    def resources_log_projection(self):
+        projection = []
+        if self.log is None:
+            raise RuntimeError("You must load a log before.")
+        for trace in self.log:
+            tmp_trace = []
+            for event in trace:
+                tmp_trace.append(event["org:group"])
+            projection.append(tmp_trace)
+        return projection
 
     def parse_decl_model(self, model_path):
         self.model = parse_decl(model_path)
 
     def conformance_checking(self, consider_vacuity):
         if self.log is None:
-            raise RuntimeError("You must load the log before checking the model!")
+            raise RuntimeError("You must load the log before checking the model.")
         if self.model is None:
-            raise RuntimeError("You must load the DECLARE model before checking the model!")
+            raise RuntimeError("You must load the DECLARE model before checking the model.")
 
         self.conformance_checking_results = conformance_checking(self.log, self.model, consider_vacuity)
         return self.conformance_checking_results
@@ -67,25 +93,35 @@ class Declare4Py:
         return self.model.get_decl_model_constraints()
     
     def get_trace_keys(self):
+        if self.log is None:
+            raise RuntimeError("You must load a log before.")
         trace_ids = []
         for trace_id, trace in enumerate(self.log):
             trace_ids.append((trace_id, trace.attributes["concept:name"]))
         return trace_ids
 
     def get_log_length(self):
+        if self.log is None:
+            raise RuntimeError("You must load a log before.")
         return self.log_length
 
     def get_log(self):
+        if self.log is None:
+            raise RuntimeError("You must load a log before.")
         return self.log
     
-    def get_log_payload(self):
+    def get_log_alphabet_payload(self):
+        if self.log is None:
+            raise RuntimeError("You must load a log before.")
         resources = set()
         for trace in self.log:
             for event in trace:
                 resources.add(event["org:group"])
         return resources
 
-    def get_log_activities(self):
+    def get_log_alphabet_activities(self):
+        if self.log is None:
+            raise RuntimeError("You must load a log before.")
         activities = set()
         for trace in self.log:
             for event in trace:
