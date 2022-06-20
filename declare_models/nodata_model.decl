@@ -1,0 +1,107 @@
+activity ER Triage
+bind ER Triage: org:group, Diagnose, Age
+activity ER Registration
+bind ER Registration: InfectionSuspected, org:group, DiagnosticBlood, DisfuncOrg, SIRSCritTachypnea, Hypotensie, SIRSCritHeartRate, Infusion, DiagnosticArtAstrup, Age, DiagnosticIC, DiagnosticSputum, DiagnosticLiquor, DiagnosticOther, SIRSCriteria2OrMore, DiagnosticXthorax, SIRSCritTemperature, DiagnosticUrinaryCulture, SIRSCritLeucos, Oligurie, DiagnosticLacticAcid, Diagnose, Hypoxie, DiagnosticUrinarySediment, DiagnosticECG
+activity ER Sepsis Triage
+bind ER Sepsis Triage: org:group, Diagnose, Age
+activity Leucocytes
+bind Leucocytes: Leucocytes, org:group, Diagnose, Age
+activity CRP
+bind CRP: CRP, org:group, Diagnose, Age
+activity LacticAcid
+bind LacticAcid: org:group, LacticAcid
+activity IV Antibiotics
+bind IV Antibiotics: org:group
+activity Admission NC
+bind Admission NC: org:group
+activity IV Liquid
+bind IV Liquid: org:group, Diagnose, Age
+activity Release A
+bind Release A: org:group
+activity Return ER
+bind Return ER: org:group
+activity Admission IC
+bind Admission IC: org:group
+CRP: float between 5.0 and 573.0
+InfectionSuspected: true, false
+org:group: A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, ?
+DiagnosticBlood: true, false
+DisfuncOrg: true, false
+SIRSCritTachypnea: true, false
+Hypotensie: true, false
+SIRSCritHeartRate: true, false
+Infusion: true, false
+Leucocytes: float between 0.2 and 381.3
+DiagnosticArtAstrup: true, false
+LacticAcid: float between 0.2 and 14.9
+Age: integer between 20 and 90
+DiagnosticIC: true, false
+DiagnosticSputum: false, true
+DiagnosticLiquor: false, true
+DiagnosticOther: false, true
+SIRSCriteria2OrMore: true, false
+DiagnosticXthorax: true, false
+SIRSCritTemperature: true, false
+DiagnosticUrinaryCulture: true, false
+SIRSCritLeucos: false, true
+Oligurie: false, true
+DiagnosticLacticAcid: true, false
+Diagnose: YA, YB, YC, YD, QA, QB, QC, QD, QE, IA, IB, IC, ID, IE, AA, AB, AC, AD, AE, ZA, ZB, ZC, ZD, RA, RB, RC, RD, JA, JB, JC, JD, JE, BA, BB, A, BC, B, BD, C, BE, D, E, F, G, H, I, J, K, L, M, N, SA, O, SB, P, SC, Q, SD, R, S, T, U, V, KA, W, KB, X, KC, Y, KD, Z, KE, CA, CB, CC, CD, CE, TA, TB, TC, TD, LA, LB, LC, LD, LE, DA, DB, DC, DD, DE, UA, UB, UC, UD, MA, MB, MC, MD, ME, EA, EB, EC, ED, EE, VA, VB, VC, VD, NA, NB, NC, ND, FA, FB, FC, FD, FE, WA, WB, WC, WD, OA, OB, OC, OD, OE, GA, GB, GC, GD, GE, XA, XB, XC, XD, PA, PB, PC, PD, PE, HA, HB, HC, HD, HE
+Hypoxie: false, true
+DiagnosticUrinarySediment: true, false
+DiagnosticECG: true, false
+Choice[ER Registration, IV Liquid] | | |
+Choice[ER Triage, LacticAcid] | | |
+Choice[ER Sepsis Triage, Return ER] | | |
+Choice[ER Triage, IV Antibiotics] | | |
+Choice[Admission IC, ER Registration] | | |
+Choice[ER Sepsis Triage, Leucocytes] | | |
+Choice[ER Sepsis Triage, LacticAcid] | | |
+Choice[Admission NC, ER Triage] | | |
+Choice[ER Registration, Leucocytes] | | |
+Choice[ER Triage, Return ER] | | |
+Choice[ER Sepsis Triage, Release A] | | |
+Choice[Admission IC, ER Triage] | | |
+Choice[ER Triage, IV Liquid] | | |
+Choice[Admission NC, ER Sepsis Triage] | | |
+Choice[ER Registration, LacticAcid] | | |
+Choice[CRP, ER Registration] | | |
+Choice[Admission NC, ER Registration] | | |
+Choice[CRP, ER Sepsis Triage] | | |
+Choice[ER Registration, Return ER] | | |
+Choice[ER Triage, Leucocytes] | | |
+Choice[ER Triage, Release A] | | |
+Choice[ER Registration, ER Sepsis Triage] | | |
+Choice[ER Registration, ER Triage] | | |
+Choice[ER Registration, Release A] | | |
+Choice[ER Registration, IV Antibiotics] | | |
+Exactly1[ER Registration] | |
+Absence2[Return ER] | |
+Absence2[IV Liquid] | |
+Absence2[Release A] | |
+Absence2[IV Antibiotics] | |
+Choice[ER Sepsis Triage, IV Liquid] | | |
+Choice[ER Sepsis Triage, IV Antibiotics] | | |
+Exactly1[ER Sepsis Triage] | |
+Exactly1[ER Triage] | |
+Absence2[Admission IC] | |
+Choice[Admission NC, Leucocytes] | | |
+Choice[Leucocytes, Release A] | | |
+Choice[Admission NC, CRP] | | |
+Choice[Leucocytes, Return ER] | | |
+Choice[CRP, Leucocytes] | | |
+Choice[CRP, Release A] | | |
+Existence[Leucocytes] | |
+Choice[IV Antibiotics, Leucocytes] | | |
+Choice[LacticAcid, Leucocytes] | | |
+Choice[Admission IC, Leucocytes] | | |
+Choice[IV Liquid, Leucocytes] | | |
+Choice[CRP, Return ER] | | |
+Alternate Response[ER Registration, Leucocytes] | | |
+Existence[CRP] | |
+Choice[CRP, IV Liquid] | | |
+Choice[Admission IC, CRP] | | |
+Choice[CRP, IV Antibiotics] | | |
+Choice[CRP, LacticAcid] | | |
+Alternate Response[ER Registration, CRP] | | |
+Absence3[Admission NC] | |
