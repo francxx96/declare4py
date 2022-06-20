@@ -1,0 +1,111 @@
+activity ER Triage
+activity ER Registration
+activity ER Sepsis Triage
+activity Leucocytes
+activity CRP
+activity LacticAcid
+activity IV Antibiotics
+activity Admission NC
+activity IV Liquid
+activity Release A
+activity Return ER
+activity Admission IC
+Exactly1[ER Registration] | |
+Exactly1[ER Sepsis Triage] | |
+Exactly1[ER Triage] | |
+Alternate Succession[ER Registration, ER Sepsis Triage] | | |
+Init[ER Registration] | |
+Chain Succession[ER Registration, ER Triage] | | |
+Absence[Admission IC] | |
+Chain Succession[ER Triage, ER Sepsis Triage] | | |
+Exactly1[IV Antibiotics] | |
+Alternate Succession[ER Sepsis Triage, IV Antibiotics] | | |
+Alternate Succession[ER Registration, IV Antibiotics] | | |
+Alternate Succession[ER Triage, IV Antibiotics] | | |
+Co-Existence[Admission NC, Leucocytes] | | |
+Co-Existence[Admission NC, CRP] | | |
+Absence[Return ER] | |
+Exactly1[IV Liquid] | |
+Alternate Succession[ER Registration, IV Liquid] | | |
+Alternate Succession[ER Triage, IV Liquid] | | |
+Alternate Precedence[CRP, IV Antibiotics] | | |
+Alternate Precedence[Leucocytes, IV Antibiotics] | | |
+Exactly1[LacticAcid] | |
+Alternate Succession[ER Registration, LacticAcid] | | |
+Exactly1[Release A] | |
+Alternate Succession[ER Registration, Release A] | | |
+Alternate Succession[ER Sepsis Triage, Release A] | | |
+Alternate Succession[ER Triage, Release A] | | |
+Succession[CRP, Release A] | | |
+Alternate Succession[ER Triage, LacticAcid] | | |
+Alternate Response[IV Antibiotics, CRP] | | |
+Alternate Response[IV Antibiotics, Leucocytes] | | |
+Alternate Precedence[Leucocytes, Admission NC] | | |
+Alternate Response[IV Liquid, CRP] | | |
+Alternate Response[LacticAcid, CRP] | | |
+Alternate Response[IV Liquid, Leucocytes] | | |
+Alternate Precedence[CRP, Admission NC] | | |
+Alternate Succession[IV Antibiotics, Release A] | | |
+Alternate Succession[ER Sepsis Triage, LacticAcid] | | |
+Alternate Succession[IV Liquid, Release A] | | |
+Alternate Succession[LacticAcid, IV Antibiotics] | | |
+Alternate Precedence[Leucocytes, IV Liquid] | | |
+Alternate Precedence[CRP, IV Liquid] | | |
+Chain Succession[IV Liquid, IV Antibiotics] | | |
+Exactly1[Admission NC] | |
+Alternate Succession[ER Registration, Admission NC] | | |
+Alternate Succession[ER Triage, Admission NC] | | |
+Alternate Succession[ER Sepsis Triage, Admission NC] | | |
+Existence3[CRP] | |
+Alternate Response[Admission NC, CRP] | | |
+Alternate Succession[LacticAcid, Release A] | | |
+Existence3[Leucocytes] | |
+Alternate Succession[Admission NC, Release A] | | |
+Alternate Succession[LacticAcid, IV Liquid] | | |
+Absence[Release A] | |
+Alternate Succession[IV Liquid, Admission NC] | | |
+Alternate Succession[LacticAcid, Admission NC] | | |
+Exactly1[Leucocytes] | |
+Alternate Succession[ER Registration, Leucocytes] | | |
+Alternate Response[IV Liquid, LacticAcid] | | |
+Chain Precedence[CRP, Release A] | | |
+Exactly1[CRP] | |
+Alternate Succession[ER Triage, Leucocytes] | | |
+Alternate Succession[ER Registration, CRP] | | |
+Chain Precedence[CRP, LacticAcid] | | |
+Absence[IV Liquid] | |
+Exactly1[Return ER] | |
+Alternate Precedence[Admission NC, Return ER] | | |
+Alternate Succession[ER Registration, Return ER] | | |
+Alternate Precedence[CRP, Return ER] | | |
+Alternate Precedence[Leucocytes, Return ER] | | |
+Alternate Succession[ER Sepsis Triage, Return ER] | | |
+Alternate Succession[ER Triage, Return ER] | | |
+Alternate Succession[ER Triage, CRP] | | |
+Chain Succession[ER Sepsis Triage, IV Liquid] | | |
+Chain Succession[IV Antibiotics, Admission NC] | | |
+Chain Succession[Release A, Return ER] | | |
+Alternate Precedence[LacticAcid, Return ER] | | |
+Alternate Succession[ER Sepsis Triage, Leucocytes] | | |
+Chain Response[ER Sepsis Triage, Leucocytes] | | |
+Exactly2[Admission NC] | |
+Alternate Succession[IV Antibiotics, Return ER] | | |
+Succession[CRP, Leucocytes] | | |
+Alternate Succession[ER Sepsis Triage, CRP] | | |
+Alternate Response[IV Antibiotics, LacticAcid] | | |
+Absence[Admission NC] | |
+Succession[IV Liquid, LacticAcid] | | |
+Alternate Succession[IV Liquid, Return ER] | | |
+Alternate Succession[Leucocytes, CRP] | | |
+Chain Response[LacticAcid, Leucocytes] | | |
+Chain Response[Leucocytes, CRP] | | |
+Succession[IV Liquid, CRP] | | |
+Alternate Response[CRP, Leucocytes] | | |
+Absence[IV Antibiotics] | |
+Chain Precedence[Leucocytes, Release A] | | |
+Exactly2[Leucocytes] | |
+Chain Precedence[Leucocytes, CRP] | | |
+Alternate Precedence[CRP, Leucocytes] | | |
+Chain Response[Admission NC, Leucocytes] | | |
+Exactly2[CRP] | |
+Chain Precedence[Leucocytes, LacticAcid] | | |
