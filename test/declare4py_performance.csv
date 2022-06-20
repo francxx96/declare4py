@@ -1,0 +1,13 @@
+Task,num_constraints,support,declare4Py,RuM
+model_checking_no_data,19,,1.27951526641846,1.697
+model_checking_no_data,27,,1.32745289802551,2.215
+model_checking_no_data,38,,1.46286106109619,2.948
+model_checking_no_data,52,,1.71675586700439,4.488
+model_checking_data,17,,1.15048289299011,
+model_checking_data,34,,3.25548195838928,
+model_checking_data,51,,3.71064400672913,
+model_checking_data,68,,4.08506321907043,
+discovery_no_data,,0.2,,5.364
+discovery_no_data,,0.4,,6.522
+discovery_no_data,,0.6,,5.243
+discovery_no_data,,0.8,,4.803
