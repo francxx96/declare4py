@@ -60,14 +60,13 @@ class Declare4Py:
             raise RuntimeError("You must load the DECLARE model before checking the model.")
 
         self.conformance_checking_results = {}
-        for i in range(len(self.log)):
-            trace = self.log[i]
+        for i, trace in enumerate(self.log):
             trc_res = check_trace_conformance(trace, self.model, consider_vacuity)
             self.conformance_checking_results[(i, trace.attributes["concept:name"])] = trc_res
 
         return self.conformance_checking_results
 
-    def run_apriori(self, min_support: float):
+    def compute_frequent_itemsets(self, min_support: float):
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         if not 0 <= min_support <= 1:
@@ -80,17 +79,17 @@ class Declare4Py:
 
         frequent_itemsets = fpgrowth(self.binary_encoded_log, min_support=min_support, use_colnames=True)
         frequent_itemsets['length'] = frequent_itemsets['itemsets'].apply(lambda x: len(x))
-
         self.frequent_item_sets = frequent_itemsets[(frequent_itemsets['length'] <= 2)]
 
-    def discovery(self, consider_vacuity: bool, max_cardinality: int = 3):
+    def discovery(self, consider_vacuity: bool, max_declare_cardinality: int = 3):
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         if self.frequent_item_sets is None:
             raise RuntimeError("You must run apriori algorithm before.")
-        if max_cardinality <= 0:
+        if max_declare_cardinality <= 0:
             raise RuntimeError("Cardinality must be greater than 0.")
 
+        # Constraint generation from itemsets and DECLARE templates
         unary_list_with_card = (Template.EXISTENCE, Template.ABSENCE, Template.EXACTLY)
         unary_list = [Template.INIT]
         binary_list = (Template.CHOICE, Template.EXCLUSIVE_CHOICE, Template.RESPONDED_EXISTENCE, Template.RESPONSE,
@@ -111,7 +110,7 @@ class Declare4Py:
                 for templ in unary_list:
                     constraint_str_list.append(templ + '[' + ', '.join(item_set) + '] | |')
                 for templ in unary_list_with_card:
-                    for i in range(max_cardinality):
+                    for i in range(max_declare_cardinality):
                         constraint_str_list.append(templ + str(i+1) + '[' + ', '.join(item_set) + '] | |')
 
             elif length == 2:
@@ -119,11 +118,11 @@ class Declare4Py:
                     constraint_str_list.append(templ + '[' + ', '.join(item_set) + '] | | |')
                     constraint_str_list.append(templ + '[' + ', '.join(reversed(list(item_set))) + '] | | |')
 
+        # Check the constraints for each trace
         for constraint_str in constraint_str_list:
             tmp_decl_model = activities_decl_format + constraint_str
 
-            for i in range(len(self.log)):
-                trace = self.log[i]
+            for i, trace in enumerate(self.log):
                 trc_res = check_trace_conformance(trace, parse_decl_from_string(tmp_decl_model), consider_vacuity)
 
                 if trc_res[constraint_str].state == TraceState.SATISFIED:
@@ -132,7 +131,6 @@ class Declare4Py:
                         self.discovery_results[constraint_str].update(new_val)
                     else:
                         self.discovery_results[constraint_str] = new_val
-
         return self.discovery_results
 
     def filter_discovery(self, min_support: float = 0):

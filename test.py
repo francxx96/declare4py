@@ -21,8 +21,8 @@ model_check_res[(1049, 'LNA')]
 
 checker.print_conformance_results()'''
 
-checker.run_apriori(min_support=0.99)
-checker.discovery(consider_vacuity=True, max_cardinality=2)
+checker.compute_frequent_itemsets(min_support=0.99)
+ee=checker.discovery(consider_vacuity=True, max_declare_cardinality=2)
 
-print(checker.filter_discovery(0))
+print(checker.filter_discovery(0.99))
 
