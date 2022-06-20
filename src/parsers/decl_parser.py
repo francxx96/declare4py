@@ -102,9 +102,18 @@ def parse_time_cond(condition):
     return condition
 
 
-def parse_decl(path):
+def parse_decl_from_file(path):
     fo = open(path, "r+")
     lines = fo.readlines()
+    fo.close()
+    return parse_decl(lines)
+
+
+def parse_decl_from_string(decl_string):
+    return parse_decl(decl_string.split("\n"))
+
+
+def parse_decl(lines):
     result = DeclModel()
 
     for line in lines:
@@ -121,23 +130,12 @@ def parse_decl(path):
 
             if (line.startswith(Template.EXISTENCE)
                     or line.startswith(Template.ABSENCE)
-                    or line.startswith(Template.EXACTLY)):
+                    or line.startswith(Template.EXACTLY)
+                    or line.startswith(Template.INIT)):
 
-                n = 1 if not any(map(str.isdigit, key)) else int(re.search(r'\d+', key).group())
-
+                tmp['n'] = 1 if not any(map(str.isdigit, key)) else int(re.search(r'\d+', key).group())
                 tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[-1]]
-                tmp['n'] = n
-                result.checkers.append(tmp)
 
-            elif line.startswith(Template.INIT):
-
-                tmp['condition'] = [re.split(r'\s+\|', line)[1]]
-                result.checkers.append(tmp)
-
-            elif (line.startswith(Template.CHOICE)
-                  or line.startswith(Template.EXCLUSIVE_CHOICE)):
-
-                tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[-1]]
                 result.checkers.append(tmp)
 
             elif (line.startswith(Template.RESPONDED_EXISTENCE)
@@ -151,11 +149,12 @@ def parse_decl(path):
                   or line.startswith(Template.NOT_RESPONSE)
                   or line.startswith(Template.NOT_CHAIN_RESPONSE)
                   or line.startswith(Template.NOT_PRECEDENCE)
-                  or line.startswith(Template.NOT_CHAIN_PRECEDENCE)):
+                  or line.startswith(Template.NOT_CHAIN_PRECEDENCE)
+                  or line.startswith(Template.CHOICE)
+                  or line.startswith(Template.EXCLUSIVE_CHOICE)):
 
                 tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[2], re.split(r'\s+\|', line)[-1]]
                 result.checkers.append(tmp)
 
-    fo.close()
     result.set_constraints()
     return result

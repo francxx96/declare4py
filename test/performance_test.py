@@ -1,7 +1,7 @@
 from src.api.declare4py import Declare4Py
 import time
 
-log_path = "../Sepsis Cases.xes.gz"
+log_path = "Sepsis Cases.xes.gz"
 model_path = "test_models/model4.decl"
 
 checker = Declare4Py()
