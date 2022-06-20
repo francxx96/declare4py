@@ -81,7 +81,7 @@ class Declare4Py:
         frequent_itemsets['length'] = frequent_itemsets['itemsets'].apply(lambda x: len(x))
         self.frequent_item_sets = frequent_itemsets[(frequent_itemsets['length'] <= 2)]
 
-    def discovery(self, consider_vacuity: bool, max_declare_cardinality: int = 3):
+    def discovery(self, consider_vacuity: bool, max_declare_cardinality: int = 3, output_path=None):
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         if self.frequent_item_sets is None:
@@ -97,8 +97,6 @@ class Declare4Py:
                        Template.ALTERNATE_PRECEDENCE, Template.CHAIN_PRECEDENCE, Template.NOT_RESPONDED_EXISTENCE,
                        Template.NOT_RESPONSE, Template.NOT_CHAIN_RESPONSE, Template.NOT_PRECEDENCE,
                        Template.NOT_CHAIN_PRECEDENCE)
-
-        self.discovery_results = {}
 
         activities_decl_format = "activity " + "\nactivity ".join(self.get_log_alphabet_activities()) + "\n"
         constraint_str_list = list()
@@ -119,6 +117,7 @@ class Declare4Py:
                     constraint_str_list.append(templ + '[' + ', '.join(reversed(list(item_set))) + '] | | |')
 
         # Check the constraints for each trace
+        self.discovery_results = {}
         for constraint_str in constraint_str_list:
             tmp_decl_model = activities_decl_format + constraint_str
 
@@ -126,14 +125,20 @@ class Declare4Py:
                 trc_res = check_trace_conformance(trace, parse_decl_from_string(tmp_decl_model), consider_vacuity)
 
                 if trc_res[constraint_str].state == TraceState.SATISFIED:
-                    new_val = {(i, trace.attributes['concept:name']): trc_res}
+                    new_val = {(i, trace.attributes['concept:name']): trc_res[constraint_str]}
                     if constraint_str in self.discovery_results:
-                        self.discovery_results[constraint_str].update(new_val)
+                        self.discovery_results[constraint_str] |= new_val
                     else:
                         self.discovery_results[constraint_str] = new_val
+
+        if output_path is not None:
+            with open(output_path, 'a') as f:
+                f.write(activities_decl_format)
+                f.write('\n'.join(self.discovery_results.keys()))
+
         return self.discovery_results
 
-    def filter_discovery(self, min_support: float = 0):
+    def filter_discovery(self, min_support: float = 0, output_path=None):
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         if self.discovery_results is None:
@@ -147,6 +152,11 @@ class Declare4Py:
             support = len(val) / len(self.log)
             if support >= min_support:
                 result[key] = support
+
+        if output_path is not None:
+            with open(output_path, 'a') as f:
+                f.write("activity " + "\nactivity ".join(self.get_log_alphabet_activities()) + "\n")
+                f.write('\n'.join(result.keys()))
 
         return result
 

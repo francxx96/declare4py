@@ -22,7 +22,7 @@ model_check_res[(1049, 'LNA')]
 checker.print_conformance_results()'''
 
 checker.compute_frequent_itemsets(min_support=0.99)
-ee=checker.discovery(consider_vacuity=True, max_declare_cardinality=2)
+ee=checker.discovery(consider_vacuity=True, max_declare_cardinality=2, output_path="output.decl")
 
-print(checker.filter_discovery(0.99))
+ww=checker.filter_discovery(min_support=1, output_path="filtered.decl")
 
