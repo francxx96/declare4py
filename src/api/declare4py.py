@@ -156,7 +156,6 @@ class Declare4Py:
         if max_declare_cardinality <= 0:
             raise RuntimeError("Cardinality must be greater than 0.")
 
-        print("Discovery init")
         self.discovery_results = {}
 
         for item_set in self.frequent_item_sets['itemsets']:
@@ -164,17 +163,21 @@ class Declare4Py:
 
             if length == 1:
                 for templ in Template.get_unary_templates_not_supporting_cardinality():
-                    self.discovery_results |= discover_constraint(self.log, templ, item_set, None, consider_vacuity)
+                    constraint = {"template": templ, "attributes": ', '.join(item_set), "condition": ("", "")}
+                    self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
+
                 for templ in Template.get_unary_templates_supporting_cardinality():
                     for i in range(max_declare_cardinality):
-                        self.discovery_results |= discover_constraint(self.log, templ, item_set, i+1, consider_vacuity)
+                        constraint = {"template": templ, "attributes": ', '.join(item_set), "condition": ("", ""), "n": i+1}
+                        self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
 
             elif length == 2:
                 for templ in Template.get_binary_templates():
-                    self.discovery_results |= discover_constraint(self.log, templ, item_set, None, consider_vacuity)
-                    self.discovery_results |= discover_constraint(self.log, templ, reversed(list(item_set)), None, consider_vacuity)
+                    constraint = {"template": templ, "attributes": ', '.join(item_set), "condition": ("", "", "")}
+                    self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
 
-        print("Discovery finished")
+                    constraint['attributes'] = ', '.join(reversed(list(item_set)))
+                    self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
 
         activities_decl_format = "activity " + "\nactivity ".join(self.get_log_alphabet_activities()) + "\n"
         if output_path is not None:

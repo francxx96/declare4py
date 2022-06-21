@@ -122,20 +122,7 @@ def check_trace_conformance(trace, model, consider_vacuity):
     return trace_results
 
 
-def discover_constraint(log, template, activities, cardinality, consider_vacuity):
-    constraint = {
-        "template": template,
-        "attributes": ', '.join(activities),
-    }
-
-    if template in Template.get_unary_templates():
-        constraint['condition'] = ("", "")
-    else:
-        constraint['condition'] = ("", "", "")
-
-    if cardinality is not None:
-        constraint['n'] = cardinality
-
+def discover_constraint(log, constraint, consider_vacuity):
     # Fake model composed by a single constraint
     model = DeclModel()
     model.checkers.append(constraint)
@@ -144,8 +131,8 @@ def discover_constraint(log, template, activities, cardinality, consider_vacuity
 
     for i, trace in enumerate(log):
         trc_res = check_trace_conformance(trace, model, consider_vacuity)
-        # trc_res should always have only one element inside
-        for constraint_str, checker_res in trc_res.items():
+
+        for constraint_str, checker_res in trc_res.items():  # trc_res will always have only one element inside
             if checker_res.state == TraceState.SATISFIED:
                 new_val = {(i, trace.attributes['concept:name']): checker_res}
                 if constraint_str in discovery_res:
