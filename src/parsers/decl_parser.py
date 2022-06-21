@@ -118,43 +118,29 @@ def parse_decl(lines):
 
     for line in lines:
         line = line.strip()
-        if line.startswith('activity'):
-            result.activities.append(line.split()[1])
 
-        elif line.startswith(tuple(map(lambda c: c.value, Template))):
-            split = line.split("[")
-            key = split[0].strip()
-            attribute = split[1].split("]")[0]
+        split = line.split(maxsplit=2)
+        if split[0].strip() == 'activity':
+            result.activities.append(split[1].strip())
+            break
 
-            tmp = {"key": key, "attribute": attribute}
+        split = line.split("[", 2)
+        template_str, cardinality = re.search(r'(^\D+)(\d*$)', split[0]).groups()
+        template = Template.get_template_from_string(template_str)
 
-            if (line.startswith(Template.EXISTENCE)
-                    or line.startswith(Template.ABSENCE)
-                    or line.startswith(Template.EXACTLY)
-                    or line.startswith(Template.INIT)):
+        if template is not None:
+            attributes = split[1].split("]")[0]
+            tmp = {"template": template, "attributes": attributes}
 
-                tmp['n'] = 1 if not any(map(str.isdigit, key)) else int(re.search(r'\d+', key).group())
+            if template in (Template.EXISTENCE, Template.ABSENCE, Template.EXACTLY, Template.INIT):
                 tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[-1]]
+                if template is not Template.INIT:   # set cardinality for supported templates
+                    tmp['n'] = 1 if not cardinality else int(cardinality)
 
-                result.checkers.append(tmp)
-
-            elif (line.startswith(Template.RESPONDED_EXISTENCE)
-                  or line.startswith(Template.RESPONSE)
-                  or line.startswith(Template.ALTERNATE_RESPONSE)
-                  or line.startswith(Template.CHAIN_RESPONSE)
-                  or line.startswith(Template.PRECEDENCE)
-                  or line.startswith(Template.ALTERNATE_PRECEDENCE)
-                  or line.startswith(Template.CHAIN_PRECEDENCE)
-                  or line.startswith(Template.NOT_RESPONDED_EXISTENCE)
-                  or line.startswith(Template.NOT_RESPONSE)
-                  or line.startswith(Template.NOT_CHAIN_RESPONSE)
-                  or line.startswith(Template.NOT_PRECEDENCE)
-                  or line.startswith(Template.NOT_CHAIN_PRECEDENCE)
-                  or line.startswith(Template.CHOICE)
-                  or line.startswith(Template.EXCLUSIVE_CHOICE)):
-
+            else:   # Binary template
                 tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[2], re.split(r'\s+\|', line)[-1]]
-                result.checkers.append(tmp)
+
+            result.checkers.append(tmp)
 
     result.set_constraints()
     return result

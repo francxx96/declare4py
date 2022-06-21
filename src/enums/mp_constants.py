@@ -25,6 +25,12 @@ class Template(str, Enum):
     NOT_PRECEDENCE = "Not Precedence"
     NOT_CHAIN_PRECEDENCE = "Not Chain Precedence"
 
+    @classmethod
+    def get_template_from_string(cls, template_str):
+        for t in Template:
+            if t == template_str:
+                return t
+        return None
 
 class TraceState(str, Enum):
     VIOLATED = "Violated"

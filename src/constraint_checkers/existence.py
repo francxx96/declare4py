@@ -22,7 +22,7 @@ def mp_existence(trace, done, a, rules):
             if eval(activation_rules, glob, locl) and eval(time_rule, glob, locl):
                 num_activations += 1
 
-    n = rules["n"][Template.EXISTENCE]
+    n = rules["n"]
     state = None
     if not done and num_activations < n:
         state = TraceState.POSSIBLY_VIOLATED
@@ -49,7 +49,7 @@ def mp_absence(trace, done, a, rules):
             if eval(activation_rules, glob, locl) and eval(time_rule, glob, locl):
                 num_activations += 1
 
-    n = rules["n"][Template.ABSENCE]
+    n = rules["n"]
     state = None
     if not done and num_activations < n:
         state = TraceState.POSSIBLY_SATISFIED
@@ -90,7 +90,7 @@ def mp_exactly(trace, done, a, rules):
             if eval(activation_rules, glob, locl) and eval(time_rule, glob, locl):
                 num_activations += 1
 
-    n = rules["n"][Template.EXACTLY]
+    n = rules["n"]
     state = None
     if not done and num_activations < n:
         state = TraceState.POSSIBLY_VIOLATED

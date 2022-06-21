@@ -9,110 +9,109 @@ def check_trace_conformance(trace, model, consider_vacuity):
 
     trace_results = {}
     for constraint in model.checkers:
-        constraint_str = constraint["key"] + '[' + constraint["attribute"] + '] |' + ' |'.join(
-            constraint["condition"])
+        constraint_str = constraint['template'].value
+        if "n" in constraint:
+            constraint_str += str(constraint['n'])
+        constraint_str += '[' + constraint["attributes"] + '] |' + ' |'.join(constraint["condition"])
 
         rules["activation"] = constraint['condition'][0]
         rules["correlation"] = "True"   # set only when needed
         rules["time"] = constraint['condition'][-1]  # time condition is always at last position
 
         try:
-            if constraint['key'].startswith(Template.EXISTENCE):
-                rules["n"] = {Template.EXISTENCE: constraint['n']}
-                trace_results[constraint_str] = mp_existence(trace, True, constraint['attribute'], rules)
+            if constraint['template'] is Template.EXISTENCE:
+                rules["n"] = constraint['n']
+                trace_results[constraint_str] = mp_existence(trace, True, constraint['attributes'], rules)
 
-            elif constraint['key'].startswith(Template.ABSENCE):
-                rules["n"] = {Template.ABSENCE: constraint['n']}
-                trace_results[constraint_str] = mp_absence(trace, True, constraint['attribute'], rules)
+            elif constraint['template'] is Template.ABSENCE:
+                rules["n"] = constraint['n']
+                trace_results[constraint_str] = mp_absence(trace, True, constraint['attributes'], rules)
 
-            elif constraint['key'].startswith(Template.INIT):
-                trace_results[constraint_str] = mp_init(trace, True, constraint['attribute'], rules)
+            elif constraint['template'] is Template.INIT:
+                trace_results[constraint_str] = mp_init(trace, True, constraint['attributes'], rules)
 
-            elif constraint['key'].startswith(Template.EXACTLY):
-                rules["n"] = {Template.EXACTLY: constraint['n']}
-                trace_results[constraint_str] = mp_exactly(trace, True, constraint['attribute'], rules)
+            elif constraint['template'] is Template.EXACTLY:
+                rules["n"] = constraint['n']
+                trace_results[constraint_str] = mp_exactly(trace, True, constraint['attributes'], rules)
 
-            elif constraint['key'].startswith(Template.CHOICE):
-                trace_results[constraint_str] = mp_choice(trace, True, constraint['attribute'].split(', ')[0],
-                                                          constraint['attribute'].split(', ')[1], rules)
+            elif constraint['template'] is Template.CHOICE:
+                trace_results[constraint_str] = mp_choice(trace, True, constraint['attributes'].split(', ')[0],
+                                                          constraint['attributes'].split(', ')[1], rules)
 
-            elif constraint['key'].startswith(Template.EXCLUSIVE_CHOICE):
+            elif constraint['template'] is Template.EXCLUSIVE_CHOICE:
                 trace_results[constraint_str] = mp_exclusive_choice(trace, True,
-                                                                    constraint['attribute'].split(', ')[0],
-                                                                    constraint['attribute'].split(', ')[1], rules)
+                                                                    constraint['attributes'].split(', ')[0],
+                                                                    constraint['attributes'].split(', ')[1], rules)
 
-            elif constraint['key'].startswith(Template.RESPONDED_EXISTENCE):
+            elif constraint['template'] is Template.RESPONDED_EXISTENCE:
                 rules["correlation"] = constraint['condition'][1]
                 trace_results[constraint_str] = mp_responded_existence(trace, True,
-                                                                       constraint['attribute'].split(', ')[0],
-                                                                       constraint['attribute'].split(', ')[1],
-                                                                       rules)
+                                                                       constraint['attributes'].split(', ')[0],
+                                                                       constraint['attributes'].split(', ')[1], rules)
             
-            elif constraint['key'].startswith(Template.RESPONSE):
+            elif constraint['template'] is Template.RESPONSE:
                 rules["correlation"] = constraint['condition'][1]
-                trace_results[constraint_str] = mp_response(trace, True, constraint['attribute'].split(', ')[0],
-                                                            constraint['attribute'].split(', ')[1], rules)
+                trace_results[constraint_str] = mp_response(trace, True, constraint['attributes'].split(', ')[0],
+                                                            constraint['attributes'].split(', ')[1], rules)
 
-            elif constraint['key'].startswith(Template.ALTERNATE_RESPONSE):
+            elif constraint['template'] is Template.ALTERNATE_RESPONSE:
                 rules["correlation"] = constraint['condition'][1]
                 trace_results[constraint_str] = mp_alternate_response(trace, True,
-                                                                      constraint['attribute'].split(', ')[0],
-                                                                      constraint['attribute'].split(', ')[1], rules)
+                                                                      constraint['attributes'].split(', ')[0],
+                                                                      constraint['attributes'].split(', ')[1], rules)
 
-            elif constraint['key'].startswith(Template.CHAIN_RESPONSE):
+            elif constraint['template'] is Template.CHAIN_RESPONSE:
                 rules["correlation"] = constraint['condition'][1]
                 trace_results[constraint_str] = mp_chain_response(trace, True,
-                                                                  constraint['attribute'].split(', ')[0],
-                                                                  constraint['attribute'].split(', ')[1], rules)
+                                                                  constraint['attributes'].split(', ')[0],
+                                                                  constraint['attributes'].split(', ')[1], rules)
 
-            elif constraint['key'].startswith(Template.PRECEDENCE):
+            elif constraint['template'] is Template.PRECEDENCE:
                 rules["correlation"] = constraint['condition'][1]
-                trace_results[constraint_str] = mp_precedence(trace, True, constraint['attribute'].split(', ')[0],
-                                                              constraint['attribute'].split(', ')[1], rules)
+                trace_results[constraint_str] = mp_precedence(trace, True, constraint['attributes'].split(', ')[0],
+                                                              constraint['attributes'].split(', ')[1], rules)
 
-            elif constraint['key'].startswith(Template.ALTERNATE_PRECEDENCE):
+            elif constraint['template'] is Template.ALTERNATE_PRECEDENCE:
                 rules["correlation"] = constraint['condition'][1]
                 trace_results[constraint_str] = mp_alternate_precedence(trace, True,
-                                                                        constraint['attribute'].split(', ')[0],
-                                                                        constraint['attribute'].split(', ')[1],
-                                                                        rules)
+                                                                        constraint['attributes'].split(', ')[0],
+                                                                        constraint['attributes'].split(', ')[1], rules)
 
-            elif constraint['key'].startswith(Template.CHAIN_PRECEDENCE):
+            elif constraint['template'] is Template.CHAIN_PRECEDENCE:
                 rules["correlation"] = constraint['condition'][1]
                 trace_results[constraint_str] = mp_chain_precedence(trace, True,
-                                                                    constraint['attribute'].split(', ')[0],
-                                                                    constraint['attribute'].split(', ')[1], rules)
+                                                                    constraint['attributes'].split(', ')[0],
+                                                                    constraint['attributes'].split(', ')[1], rules)
 
-            elif constraint['key'].startswith(Template.NOT_RESPONDED_EXISTENCE):
+            elif constraint['template'] is Template.NOT_RESPONDED_EXISTENCE:
                 rules["correlation"] = constraint['condition'][1]
                 trace_results[constraint_str] = mp_not_responded_existence(trace, True,
-                                                                           constraint['attribute'].split(', ')[0],
-                                                                           constraint['attribute'].split(', ')[1],
+                                                                           constraint['attributes'].split(', ')[0],
+                                                                           constraint['attributes'].split(', ')[1],
                                                                            rules)
 
-            elif constraint['key'].startswith(Template.NOT_RESPONSE):
+            elif constraint['template'] is Template.NOT_RESPONSE:
                 rules["correlation"] = constraint['condition'][1]
-                trace_results[constraint_str] = mp_not_response(trace, True, constraint['attribute'].split(', ')[0],
-                                                                constraint['attribute'].split(', ')[1], rules)
+                trace_results[constraint_str] = mp_not_response(trace, True, constraint['attributes'].split(', ')[0],
+                                                                constraint['attributes'].split(', ')[1], rules)
 
-            elif constraint['key'].startswith(Template.NOT_CHAIN_RESPONSE):
+            elif constraint['template'] is Template.NOT_CHAIN_RESPONSE:
                 rules["correlation"] = constraint['condition'][1]
                 trace_results[constraint_str] = mp_not_chain_response(trace, True,
-                                                                      constraint['attribute'].split(', ')[0],
-                                                                      constraint['attribute'].split(', ')[1], rules)
+                                                                      constraint['attributes'].split(', ')[0],
+                                                                      constraint['attributes'].split(', ')[1], rules)
 
-            elif constraint['key'].startswith(Template.NOT_PRECEDENCE):
+            elif constraint['template'] is Template.NOT_PRECEDENCE:
                 rules["correlation"] = constraint['condition'][1]
                 trace_results[constraint_str] = mp_not_precedence(trace, True,
-                                                                  constraint['attribute'].split(', ')[0],
-                                                                  constraint['attribute'].split(', ')[1], rules)
+                                                                  constraint['attributes'].split(', ')[0],
+                                                                  constraint['attributes'].split(', ')[1], rules)
 
-            elif constraint['key'].startswith(Template.NOT_CHAIN_PRECEDENCE):
+            elif constraint['template'] is Template.NOT_CHAIN_PRECEDENCE:
                 rules["correlation"] = constraint['condition'][1]
                 trace_results[constraint_str] = mp_not_chain_precedence(trace, True,
-                                                                        constraint['attribute'].split(', ')[0],
-                                                                        constraint['attribute'].split(', ')[1],
-                                                                        rules)
+                                                                        constraint['attributes'].split(', ')[0],
+                                                                        constraint['attributes'].split(', ')[1], rules)
 
         except SyntaxError:
             if constraint_str not in error_constraint_set:

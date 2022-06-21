@@ -10,7 +10,7 @@ test = "discovery"
 start = time.time()
 if test == "checking":
     d4py.parse_decl_model(model_path)
-    checker.conformance_checking(consider_vacuity=True)
+    d4py.conformance_checking(consider_vacuity=True)
 elif test == "discovery":
     d4py.compute_frequent_itemsets(min_support=0.8)
     d4py.discovery(consider_vacuity=True, max_declare_cardinality=2)
