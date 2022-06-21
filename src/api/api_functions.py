@@ -148,6 +148,9 @@ def discover_constraint(log, template, activities, cardinality, consider_vacuity
         for constraint_str, checker_res in trc_res.items():
             if checker_res.state == TraceState.SATISFIED:
                 new_val = {(i, trace.attributes['concept:name']): checker_res}
-                discovery_res[constraint_str] = new_val
+                if constraint_str in discovery_res:
+                    discovery_res[constraint_str] |= new_val
+                else:
+                    discovery_res[constraint_str] = new_val
 
     return discovery_res
