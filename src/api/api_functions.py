@@ -47,7 +47,7 @@ def check_trace_conformance(trace, model, consider_vacuity):
                                                                        constraint['attribute'].split(', ')[0],
                                                                        constraint['attribute'].split(', ')[1],
                                                                        rules)
-
+            
             elif constraint['key'].startswith(Template.RESPONSE):
                 rules["correlation"] = constraint['condition'][1]
                 trace_results[constraint_str] = mp_response(trace, True, constraint['attribute'].split(', ')[0],
