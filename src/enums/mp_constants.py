@@ -32,6 +32,27 @@ class Template(str, Enum):
                 return t
         return None
 
+    @classmethod
+    def get_unary_templates(cls):
+        return [Template.ABSENCE, Template.EXACTLY, Template.EXISTENCE, Template.INIT]
+
+    @classmethod
+    def get_unary_templates_supporting_cardinality(cls):
+        return [Template.ABSENCE, Template.EXACTLY, Template.EXISTENCE]
+
+    @classmethod
+    def get_unary_templates_not_supporting_cardinality(cls):
+        return [Template.INIT]
+
+    @classmethod
+    def get_binary_templates(cls):
+        return [Template.CHOICE, Template.EXCLUSIVE_CHOICE, Template.RESPONDED_EXISTENCE, Template.RESPONSE,
+                Template.ALTERNATE_RESPONSE, Template.CHAIN_RESPONSE, Template.PRECEDENCE,
+                Template.ALTERNATE_PRECEDENCE, Template.CHAIN_PRECEDENCE, Template.NOT_RESPONDED_EXISTENCE,
+                Template.NOT_RESPONSE, Template.NOT_CHAIN_RESPONSE, Template.NOT_PRECEDENCE,
+                Template.NOT_CHAIN_PRECEDENCE]
+
+
 class TraceState(str, Enum):
     VIOLATED = "Violated"
     SATISFIED = "Satisfied"

@@ -1,5 +1,5 @@
 from src.constraint_checkers import *
-
+from src.models import DeclModel
 
 def check_trace_conformance(trace, model, consider_vacuity):
     rules = {"vacuous_satisfaction": consider_vacuity}
@@ -120,3 +120,37 @@ def check_trace_conformance(trace, model, consider_vacuity):
                       + '". Skipping it in conformance checking.')
 
     return trace_results
+
+
+def discover_constraint(log, template, activities, cardinality, consider_vacuity):
+    constraint = {
+        "template": template,
+        "attributes": ', '.join(activities),
+    }
+
+    if template in Template.get_unary_templates():
+        constraint['condition'] = ("", "")
+    else:
+        constraint['condition'] = ("", "", "")
+
+    if cardinality is not None:
+        constraint['n'] = cardinality
+
+    # Fake model composed by a single constraint
+    model = DeclModel()
+    model.checkers.append(constraint)
+
+    discovery_res = {}
+
+    for i, trace in enumerate(log):
+        trc_res = check_trace_conformance(trace, model, consider_vacuity)
+        # trc_res should always have only one element inside
+        for constraint_str, checker_res in trc_res.items():
+            if checker_res.state == TraceState.SATISFIED:
+                new_val = {(i, trace.attributes['concept:name']): checker_res}
+                if constraint_str in discovery_res:
+                    discovery_res[constraint_str] |= new_val
+                else:
+                    discovery_res[constraint_str] = new_val
+
+    return discovery_res

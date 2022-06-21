@@ -155,50 +155,28 @@ class Declare4Py:
             raise RuntimeError("You must discover frequent itemsets before.")
         if max_declare_cardinality <= 0:
             raise RuntimeError("Cardinality must be greater than 0.")
-        print("Template iniz")
-        # Constraint generation from itemsets and DECLARE templates
-        unary_list_with_card = (Template.EXISTENCE, Template.ABSENCE, Template.EXACTLY)
-        unary_list = [Template.INIT]
-        binary_list = (Template.CHOICE, Template.EXCLUSIVE_CHOICE, Template.RESPONDED_EXISTENCE, Template.RESPONSE,
-                       Template.ALTERNATE_RESPONSE, Template.CHAIN_RESPONSE, Template.PRECEDENCE,
-                       Template.ALTERNATE_PRECEDENCE, Template.CHAIN_PRECEDENCE, Template.NOT_RESPONDED_EXISTENCE,
-                       Template.NOT_RESPONSE, Template.NOT_CHAIN_RESPONSE, Template.NOT_PRECEDENCE,
-                       Template.NOT_CHAIN_PRECEDENCE)
 
-        activities_decl_format = "activity " + "\nactivity ".join(self.get_log_alphabet_activities()) + "\n"
-        constraint_str_list = list()
-        
+        print("Discovery init")
+        self.discovery_results = {}
+
         for item_set in self.frequent_item_sets['itemsets']:
             length = len(item_set)
 
             if length == 1:
-                for templ in unary_list:
-                    constraint_str_list.append(templ + '[' + ', '.join(item_set) + '] | |')
-                for templ in unary_list_with_card:
+                for templ in Template.get_unary_templates_not_supporting_cardinality():
+                    self.discovery_results |= discover_constraint(self.log, templ, item_set, None, consider_vacuity)
+                for templ in Template.get_unary_templates_supporting_cardinality():
                     for i in range(max_declare_cardinality):
-                        constraint_str_list.append(templ + str(i+1) + '[' + ', '.join(item_set) + '] | |')
+                        self.discovery_results |= discover_constraint(self.log, templ, item_set, i+1, consider_vacuity)
 
             elif length == 2:
-                for templ in binary_list:
-                    constraint_str_list.append(templ + '[' + ', '.join(item_set) + '] | | |')
-                    constraint_str_list.append(templ + '[' + ', '.join(reversed(list(item_set))) + '] | | |')
+                for templ in Template.get_binary_templates():
+                    self.discovery_results |= discover_constraint(self.log, templ, item_set, None, consider_vacuity)
+                    self.discovery_results |= discover_constraint(self.log, templ, reversed(list(item_set)), None, consider_vacuity)
 
-        # Check the constraints for each trace
-        print("Discovery init")
-        self.discovery_results = {}
-        for constraint_str in constraint_str_list:
-            tmp_decl_model = constraint_str
-
-            for i, trace in enumerate(self.log):
-                trc_res = check_trace_conformance(trace, parse_decl_from_string(tmp_decl_model), consider_vacuity)
-
-                if trc_res[constraint_str].state == TraceState.SATISFIED:
-                    new_val = {(i, trace.attributes['concept:name']): trc_res[constraint_str]}
-                    if constraint_str in self.discovery_results:
-                        self.discovery_results[constraint_str] |= new_val
-                    else:
-                        self.discovery_results[constraint_str] = new_val
         print("Discovery finished")
+
+        activities_decl_format = "activity " + "\nactivity ".join(self.get_log_alphabet_activities()) + "\n"
         if output_path is not None:
             with open(output_path, 'w') as f:
                 f.write(activities_decl_format)
