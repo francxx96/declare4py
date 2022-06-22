@@ -29,7 +29,8 @@ def mp_choice(trace, done, a, b, rules):
     elif a_or_b_occurs:
         state = TraceState.SATISFIED
 
-    return CheckerResult(num_fulfillments=None, num_violations=None, num_pendings=None, num_activations=None, state=state)
+    return CheckerResult(num_fulfillments=None, num_violations=None, num_pendings=None, num_activations=None,
+                         state=state)
 
 
 # mp-exclusive-choice constraint checker
@@ -61,4 +62,5 @@ def mp_exclusive_choice(trace, done, a, b, rules):
     elif done and (a_occurs ^ b_occurs):
         state = TraceState.SATISFIED
 
-    return CheckerResult(num_fulfillments=None, num_violations=None, num_pendings=None, num_activations=None, state=state)
+    return CheckerResult(num_fulfillments=None, num_violations=None, num_pendings=None, num_activations=None,
+                         state=state)

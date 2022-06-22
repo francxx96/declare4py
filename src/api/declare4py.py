@@ -1,11 +1,10 @@
 from src.parsers import *
 from src.api import *
-from src.enums import TraceState
 
 import pm4py
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
-from mlxtend.frequent_patterns import fpgrowth, apriori, fpmax
+from mlxtend.frequent_patterns import fpgrowth, apriori
 
 
 class Declare4Py:
@@ -51,7 +50,7 @@ class Declare4Py:
             projection.append(tmp_trace)
         return projection
 
-    def log_encoding(self, dimension: str='act'):
+    def log_encoding(self, dimension: str = 'act'):
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         te = TransactionEncoder()
@@ -65,7 +64,8 @@ class Declare4Py:
         self.binary_encoded_log = pd.DataFrame(te_ary, columns=te.columns_)
         return self.binary_encoded_log
 
-    def compute_frequent_itemsets(self, min_support: float, dimension: str='act', algorithm: str='fpgrowth', len_itemset: int=None):
+    def compute_frequent_itemsets(self, min_support: float, dimension: str = 'act', algorithm: str = 'fpgrowth',
+                                  len_itemset: int = None):
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         if not 0 <= min_support <= 1:
@@ -183,7 +183,8 @@ class Declare4Py:
 
                 for templ in Template.get_unary_templates_supporting_cardinality():
                     for i in range(max_declare_cardinality):
-                        constraint = {"template": templ, "attributes": ', '.join(item_set), "condition": ("", ""), "n": i+1}
+                        constraint = {"template": templ, "attributes": ', '.join(item_set), "condition": ("", ""),
+                                      "n": i + 1}
                         self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
 
             elif length == 2:
@@ -202,7 +203,7 @@ class Declare4Py:
 
         return self.discovery_results
 
-    def filter_discovery(self, min_support: float = 0, output_path: str=None):
+    def filter_discovery(self, min_support: float = 0, output_path: str = None):
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         if self.discovery_results is None:

@@ -31,7 +31,8 @@ def mp_existence(trace, done, a, rules):
     elif num_activations >= n:
         state = TraceState.SATISFIED
 
-    return CheckerResult(num_fulfillments=None, num_violations=None, num_pendings=None, num_activations=None, state=state)
+    return CheckerResult(num_fulfillments=None, num_violations=None, num_pendings=None, num_activations=None,
+                         state=state)
 
 
 # mp-absence constraint checker
@@ -58,7 +59,8 @@ def mp_absence(trace, done, a, rules):
     elif done and num_activations < n:
         state = TraceState.SATISFIED
 
-    return CheckerResult(num_fulfillments=None, num_violations=None, num_pendings=None, num_activations=None, state=state)
+    return CheckerResult(num_fulfillments=None, num_violations=None, num_pendings=None, num_activations=None,
+                         state=state)
 
 
 # mp-init constraint checker
@@ -74,7 +76,8 @@ def mp_init(trace, done, a, rules):
         if eval(activation_rules, glob, locl):
             state = TraceState.SATISFIED
 
-    return CheckerResult(num_fulfillments=None, num_violations=None, num_pendings=None, num_activations=None, state=state)
+    return CheckerResult(num_fulfillments=None, num_violations=None, num_pendings=None, num_activations=None,
+                         state=state)
 
 
 # mp-exactly constraint checker
@@ -101,4 +104,5 @@ def mp_exactly(trace, done, a, rules):
     elif done and num_activations == n:
         state = TraceState.SATISFIED
 
-    return CheckerResult(num_fulfillments=None, num_violations=None, num_pendings=None, num_activations=None, state=state)
+    return CheckerResult(num_fulfillments=None, num_violations=None, num_pendings=None, num_activations=None,
+                         state=state)

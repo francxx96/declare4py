@@ -63,7 +63,8 @@ def mp_responded_existence(trace, done, a, b, rules):
     elif done and num_violations == 0:
         state = TraceState.SATISFIED
 
-    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=num_pendings, num_activations=num_activations, state=state)
+    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=num_pendings,
+                         num_activations=num_activations, state=state)
 
 
 # mp-response constraint checker
@@ -117,7 +118,8 @@ def mp_response(trace, done, a, b, rules):
     elif done and num_violations == 0:
         state = TraceState.SATISFIED
 
-    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=num_pendings, num_activations=num_activations, state=state)
+    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=num_pendings,
+                         num_activations=num_activations, state=state)
 
 
 # mp-alternate-response constraint checker
@@ -170,7 +172,8 @@ def mp_alternate_response(trace, done, a, b, rules):
     elif done and num_violations == 0 and num_pendings == 0:
         state = TraceState.SATISFIED
 
-    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=num_pendings, num_activations=num_activations, state=state)
+    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=num_pendings,
+                         num_activations=num_activations, state=state)
 
 
 # mp-chain-response constraint checker
@@ -222,7 +225,8 @@ def mp_chain_response(trace, done, a, b, rules):
     elif done and num_violations == 0 and num_pendings == 0:
         state = TraceState.SATISFIED
 
-    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=num_pendings, num_activations=num_activations, state=state)
+    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=num_pendings,
+                         num_activations=num_activations, state=state)
 
 
 # mp-precedence constraint checker
@@ -270,7 +274,8 @@ def mp_precedence(trace, done, a, b, rules):
     elif done and num_violations == 0:
         state = TraceState.SATISFIED
 
-    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=None, num_activations=num_activations, state=state)
+    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=None,
+                         num_activations=num_activations, state=state)
 
 
 # mp-alternate-precedence constraint checker
@@ -319,7 +324,8 @@ def mp_alternate_precedence(trace, done, a, b, rules):
     elif done and num_violations == 0:
         state = TraceState.SATISFIED
 
-    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=None, num_activations=num_activations, state=state)
+    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=None,
+                         num_activations=num_activations, state=state)
 
 
 # mp-chain-precedence constraint checker
@@ -363,4 +369,5 @@ def mp_chain_precedence(trace, done, a, b, rules):
     elif done and num_violations == 0:
         state = TraceState.SATISFIED
 
-    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=None, num_activations=num_activations, state=state)
+    return CheckerResult(num_fulfillments=num_fulfillments, num_violations=num_violations, num_pendings=None,
+                         num_activations=num_activations, state=state)
