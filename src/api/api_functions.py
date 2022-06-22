@@ -8,6 +8,7 @@ def check_trace_conformance(trace, model, consider_vacuity):
     error_constraint_set = set()
 
     trace_results = {}
+    
     for constraint in model.checkers:
         constraint_str = constraint['template'].value
         if "n" in constraint:

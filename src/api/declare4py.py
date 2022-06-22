@@ -51,25 +51,38 @@ class Declare4Py:
             projection.append(tmp_trace)
         return projection
 
-    def log_encoding(self):
+    def log_encoding(self, dimension: str='act'):
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         te = TransactionEncoder()
-        dataset = self.activities_log_projection()
+        if dimension == 'act':
+            dataset = self.activities_log_projection()
+        elif dimension == 'payload':
+            dataset = self.resources_log_projection()
+        else:
+            raise RuntimeError(f"{dimension} dimension not supported. Choose between act and payload")
         te_ary = te.fit(dataset).transform(dataset)
         self.binary_encoded_log = pd.DataFrame(te_ary, columns=te.columns_)
         return self.binary_encoded_log
 
-    def compute_frequent_itemsets(self, min_support: float):
+    def compute_frequent_itemsets(self, min_support: float, dimension: str='act', algorithm: str='fpgrowth', len_itemset: int=None):
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         if not 0 <= min_support <= 1:
             raise RuntimeError("Min. support must be in range [0, 1].")
 
-        self.log_encoding()
-        frequent_itemsets = fpgrowth(self.binary_encoded_log, min_support=min_support, use_colnames=True)
+        self.log_encoding(dimension)
+        if algorithm == 'fpgrowth':
+            frequent_itemsets = fpgrowth(self.binary_encoded_log, min_support=min_support, use_colnames=True)
+        elif algorithm == 'apriori':
+            frequent_itemsets = apriori(self.binary_encoded_log, min_support=min_support, use_colnames=True)
+        else:
+            raise RuntimeError(f"{algorithm} algorithm not supported. Choose between fpgrowth and apriori")
         frequent_itemsets['length'] = frequent_itemsets['itemsets'].apply(lambda x: len(x))
-        self.frequent_item_sets = frequent_itemsets[(frequent_itemsets['length'] <= 2)]
+        if len_itemset is None:
+            self.frequent_item_sets = frequent_itemsets
+        else:
+            self.frequent_item_sets = frequent_itemsets[(frequent_itemsets['length'] <= len_itemset)]
 
     def get_trace_keys(self):
         if self.log is None:
@@ -136,6 +149,7 @@ class Declare4Py:
 
     # PROCESS MINING TASKS
     def conformance_checking(self, consider_vacuity: bool):
+        print("Computing conformance checking ...")
         if self.log is None:
             raise RuntimeError("You must load the log before checking the model.")
         if self.model is None:
@@ -149,6 +163,7 @@ class Declare4Py:
         return self.conformance_checking_results
 
     def discovery(self, consider_vacuity: bool, max_declare_cardinality: int = 3, output_path=None):
+        print("Computing discovery ...")
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         if self.frequent_item_sets is None:
@@ -210,7 +225,7 @@ class Declare4Py:
         return result
 
     def query_checking(self):
-        pass
+        print("Computing query checking ...")
 
     # FUNCTIONS FOR PRINTING RESULTS ##############
     def print_conformance_results(self):
