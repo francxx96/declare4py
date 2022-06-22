@@ -21,10 +21,10 @@ model_check_res[(1049, 'LNA')]
 
 checker.print_conformance_results()'''
 
-d4py.compute_frequent_itemsets(min_support=0.8, len_itemset=2)
-discovery_results = d4py.discovery(consider_vacuity=False, max_declare_cardinality=2)
-
-decl_constr = 'Absence2[ER Triage] | |'
+d4py.compute_frequent_itemsets(min_support=0.9, len_itemset=2)
+discovery_results = d4py.discovery(consider_vacuity=True, max_declare_cardinality=2)
+print(discovery_results.keys())
+decl_constr = 'Responded Existence[ER Sepsis Triage, ER Triage] | | |'
 trace_id = (488, 'VR')
 print(f"Number of pendings: {discovery_results[decl_constr][trace_id].num_pendings}")
 print(f"Number of activations: {discovery_results[decl_constr][trace_id].num_activations}")
