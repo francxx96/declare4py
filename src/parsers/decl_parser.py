@@ -119,28 +119,31 @@ def parse_decl(lines):
     for line in lines:
         line = line.strip()
 
-        split = line.split(maxsplit=2)
+        split = line.split(maxsplit=1)
         if split[0].strip() == 'activity':
             result.activities.append(split[1].strip())
-            break
+            continue
 
-        split = line.split("[", 2)
-        template_str, cardinality = re.search(r'(^\D+)(\d*$)', split[0]).groups()
-        template = Template.get_template_from_string(template_str)
+        split = line.split("[", 1)
+        template_search = re.search(r'(^\D+)(\d*$)', split[0])
 
-        if template is not None:
-            attributes = split[1].split("]")[0]
-            tmp = {"template": template, "attributes": attributes}
+        if template_search is not None:
+            template_str, cardinality = template_search.groups()
+            template = Template.get_template_from_string(template_str)
 
-            if template in (Template.EXISTENCE, Template.ABSENCE, Template.EXACTLY, Template.INIT):
-                tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[-1]]
-                if template is not Template.INIT:   # set cardinality for supported templates
-                    tmp['n'] = 1 if not cardinality else int(cardinality)
+            if template is not None:
+                attributes = split[1].split("]")[0]
+                tmp = {"template": template, "attributes": attributes}
 
-            else:   # Binary template
-                tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[2], re.split(r'\s+\|', line)[-1]]
+                if template in (Template.EXISTENCE, Template.ABSENCE, Template.EXACTLY, Template.INIT):
+                    tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[-1]]
+                    if template is not Template.INIT:   # set cardinality for supported templates
+                        tmp['n'] = 1 if not cardinality else int(cardinality)
 
-            result.checkers.append(tmp)
+                else:   # Binary template
+                    tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[2], re.split(r'\s+\|', line)[-1]]
+
+                result.checkers.append(tmp)
 
     result.set_constraints()
     return result
