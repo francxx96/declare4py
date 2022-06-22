@@ -10,14 +10,11 @@ integrated into your process mining software project.
 
 ### Requirements
 We test declare4Py with the following software configuration. However, more recent versions of the libraries could also work:
-- Ubuntu==;
-- Python==;
-- mlxtend==;
-- Pm4Py==;
-- Pandas==;
-- Numpy==;
-- Scikit-learn==;
-- Matplotlib==;
+- MacOs Big Sur==11.1;
+- Python==3.9.7;
+- mlxtend==0.20.0;
+- Pm4Py==2.2.21;
+- Pandas==1.3.4;
 
 ### Installation
 
@@ -27,7 +24,7 @@ The `tutorials/` folder contains a walk-through of Declare4Py. In order, the tut
 - [Log analysis](): simple functions to extract useful information from logs;
 - [Model checking](): check what are the traces that satisfy a given DECLARE model;
 - [Model Discovery](): discover what are the most satisfied DECLARE constraints in a given log;
-- [Query Checking]();
+- [Query Checking](): ;
 
 The tutorials are implemented using Jupyter notebooks and consider the [Sepsis cases log](https://data.4tu.nl/articles/dataset/Sepsis_Cases_-_Event_Log/12707639).
 

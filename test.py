@@ -31,3 +31,8 @@ print(f"Number of activations: {discovery_results[decl_constr][trace_id].num_act
 print(f"Number of fulfilments: {discovery_results[decl_constr][trace_id].num_fulfillments}")
 print(f"Number of violation: {discovery_results[decl_constr][trace_id].num_violations}")
 print(f"Truth value of: {discovery_results[decl_constr][trace_id].state}")
+
+
+model_path = "test/declare_models/data_model.decl"
+d4py.parse_decl_model(model_path)
+d4py.model.__dict__
