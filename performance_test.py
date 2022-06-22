@@ -14,6 +14,7 @@ if test == "checking":
 elif test == "discovery":
     d4py.compute_frequent_itemsets(min_support=0.8, len_itemset=2)
     d4py.discovery(consider_vacuity=True, max_declare_cardinality=2)
+    d4py.filter_discovery(min_support=0.5, output_path='eh.decl')
 else:
     pass
 end = time.time()

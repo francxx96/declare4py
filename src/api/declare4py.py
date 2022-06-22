@@ -202,7 +202,7 @@ class Declare4Py:
 
         return self.discovery_results
 
-    def filter_discovery(self, min_support: float = 0, output_path=None):
+    def filter_discovery(self, min_support: float = 0, output_path: str=None):
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         if self.discovery_results is None:

@@ -4,10 +4,10 @@ log_path = "test/Sepsis Cases.xes.gz"
 model_path = "test/declare_models/data_model.decl"
 
 
-checker = Declare4Py()
+d4py = Declare4Py()
 
 
-checker.parse_xes_log(log_path)
+d4py.parse_xes_log(log_path)
 '''act = checker.get_log_activities()
 res = checker.get_log_payload()
 checker.parse_decl_model(model_path)
@@ -21,8 +21,13 @@ model_check_res[(1049, 'LNA')]
 
 checker.print_conformance_results()'''
 
-checker.compute_frequent_itemsets(min_support=0.8)
-ee=checker.discovery(consider_vacuity=True, max_declare_cardinality=2, output_path="output.decl")
+d4py.compute_frequent_itemsets(min_support=0.8, len_itemset=2)
+discovery_results = d4py.discovery(consider_vacuity=False, max_declare_cardinality=2)
 
-ww=checker.filter_discovery(min_support=1, output_path="filtered.decl")
-pdb.set_trace()
+decl_constr = 'Absence2[ER Triage] | |'
+trace_id = (488, 'VR')
+print(f"Number of pendings: {discovery_results[decl_constr][trace_id].num_pendings}")
+print(f"Number of activations: {discovery_results[decl_constr][trace_id].num_activations}")
+print(f"Number of fulfilments: {discovery_results[decl_constr][trace_id].num_fulfillments}")
+print(f"Number of violation: {discovery_results[decl_constr][trace_id].num_violations}")
+print(f"Truth value of: {discovery_results[decl_constr][trace_id].state}")
