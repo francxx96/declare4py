@@ -39,9 +39,7 @@ class Template(str, Enum):
 
     @classmethod
     def get_template_from_string(cls, template_str):
-        for template in filter(lambda t: t.templ_str == template_str, Template):
-            return template
-        return None
+        return next(filter(lambda t: t.templ_str == template_str, Template), None)
 
     @classmethod
     def get_unary_templates(cls):

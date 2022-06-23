@@ -5,7 +5,7 @@ log_path = "test/Sepsis Cases.xes.gz"
 model_path = "test/test_models/model4.decl"
 d4py = Declare4Py()
 d4py.parse_xes_log(log_path)
-test = "checking"
+test = "query"
 
 start = time.time()
 if test == "checking":
@@ -14,6 +14,10 @@ if test == "checking":
 elif test == "discovery":
     d4py.compute_frequent_itemsets(min_support=0.2, len_itemset=2)
     d4py.discovery(consider_vacuity=True, max_declare_cardinality=2)
+elif test == "query":
+    d4py.query_checking(activation="Leucocytes",
+                        consider_vacuity=True,
+                        return_first=True)
 else:
     pass
 end = time.time()
