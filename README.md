@@ -35,14 +35,5 @@ The tutorials are Jupyter notebooks and consider the [Sepsis cases log](https://
 If you use Declare4Py in your research, please use the following BibTeX entry.
 
 ```
-@inproceedings{dfmMaking2022,
-  author    = {Chiara Di Francescomarino and Ivan Donadello and Chiara Ghidini and Fabrizio Maria Maggi and Williams Rizzi},
-  title     = {Making sense of temporal data: the {DECLARE} encoding},
-  booktitle = {PMAI@IJCAI},
-  series    = {{CEUR} Workshop Proceedings},
-  volume    = {},
-  pages     = {},
-  publisher = {CEUR-WS.org},
-  year      = {2022}
-}
+Soon available
 ```

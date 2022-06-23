@@ -1,3 +1,5 @@
+activity Release B
+bind Release B: org:group
 activity ER Triage
 bind ER Triage: org:group, Diagnose, Age
 activity ER Registration
@@ -51,7 +53,7 @@ Hypoxie: false, true
 DiagnosticUrinarySediment: true, false
 DiagnosticECG: true, false
 Choice[Admission NC, Leucocytes] | | |
-Chain Precedence[Admission NC, Release B] |A.org:group is E |T.org:group is K |48225,48225,s
+Chain Precedence[Admission NC, Release B] |A.org:group is E |T.org:group is K |
 Absence2[IV Antibiotics] | |
 Choice[ER Registration, ER Triage] | | |
 Choice[ER Triage, Leucocytes] | | |
@@ -64,8 +66,8 @@ Chain Response[Admission NC, Release B] |A.org:group is K |T.org:group is E |
 Choice[CRP, ER Registration] | | |
 Choice[ER Registration, LacticAcid] | | |
 Choice[CRP, LacticAcid] | | |
-Chain Precedence[ER Sepsis Triage, IV Antibiotics] |A.org:group is L |T.org:group is L |15,11000,s
-Chain Response[ER Sepsis Triage, IV Antibiotics] |A.org:group is L |T.org:group is L |15,11000,s
+Chain Precedence[ER Sepsis Triage, IV Antibiotics] |A.org:group is L |T.org:group is L |
+Chain Response[ER Sepsis Triage, IV Antibiotics] |A.org:group is L |T.org:group is L |
 Choice[Admission NC, ER Registration] | | |
 Absence2[IV Liquid] | |
 Choice[IV Liquid, Leucocytes] | | |
@@ -80,12 +82,12 @@ Absence2[Release A] | |
 Chain Precedence[Admission IC, Admission NC] |A.org:group is J |T.org:group is J |
 Choice[Admission IC, CRP] | | |
 Existence[CRP] | |
-Chain Precedence[Release A, Return ER] |A.org:group is ? |T.org:group is E |1121801,1121801,s
+Chain Precedence[Release A, Return ER] |A.org:group is ? |T.org:group is E |
 Choice[IV Antibiotics, Leucocytes] | | |
-Chain Response[ER Registration, ER Triage] |(A.DiagnosticArtAstrup is false) AND (A.SIRSCritHeartRate is true) AND (A.org:group is A) AND (A.DiagnosticBlood is true) AND (A.DisfuncOrg is false) AND (A.DiagnosticECG is true) AND (A.Age >= 45) AND (A.InfectionSuspected is true) AND (A.DiagnosticLacticAcid is true) AND (A.DiagnosticSputum is true) AND (A.Hypoxie is false) AND (A.DiagnosticUrinaryCulture is true) AND (A.DiagnosticLiquor is false) AND (A.SIRSCritTemperature is true) AND (A.Infusion is true) AND (A.Hypotensie is false) AND (A.DiagnosticUrinarySediment is true) AND (A.Oligurie is false) AND (A.Age <= 80) AND (A.SIRSCritTachypnea is true) AND (A.DiagnosticOther is false) AND (A.SIRSCritLeucos is false) AND (A.DiagnosticIC is true) AND (A.SIRSCriteria2OrMore is true) AND (A.DiagnosticXthorax is true) |T.org:group is C |52,2154,s
+Chain Response[ER Registration, ER Triage] |(A.DiagnosticArtAstrup is false) AND (A.SIRSCritHeartRate is true) AND (A.org:group is A) AND (A.DiagnosticBlood is true) AND (A.DisfuncOrg is false) AND (A.DiagnosticECG is true) AND (A.Age >= 45) AND (A.InfectionSuspected is true) AND (A.DiagnosticLacticAcid is true) AND (A.DiagnosticSputum is true) AND (A.Hypoxie is false) AND (A.DiagnosticUrinaryCulture is true) AND (A.DiagnosticLiquor is false) AND (A.SIRSCritTemperature is true) AND (A.Infusion is true) AND (A.Hypotensie is false) AND (A.DiagnosticUrinarySediment is true) AND (A.Oligurie is false) AND (A.Age <= 80) AND (A.SIRSCritTachypnea is true) AND (A.DiagnosticOther is false) AND (A.SIRSCritLeucos is false) AND (A.DiagnosticIC is true) AND (A.SIRSCriteria2OrMore is true) AND (A.DiagnosticXthorax is true) |T.org:group is C |
 Choice[ER Registration, Release A] | | |
 Choice[Admission IC, Leucocytes] | | |
-Chain Response[LacticAcid, Leucocytes] |A.LacticAcid <= 0.8 |T.Leucocytes >= 13.8 |0,2778,m
+Chain Response[LacticAcid, Leucocytes] |A.LacticAcid <= 0.8 |T.Leucocytes >= 13.8 |
 Exactly1[ER Sepsis Triage] | |
 Choice[ER Sepsis Triage, IV Liquid] | | |
 Choice[CRP, Return ER] | | |
@@ -97,24 +99,24 @@ Choice[ER Sepsis Triage, Release A] | | |
 Choice[ER Sepsis Triage, IV Antibiotics] | | |
 Choice[ER Registration, ER Sepsis Triage] | | |
 Choice[Leucocytes, Release A] | | |
-Chain Precedence[ER Registration, ER Triage] |A.org:group is C |(T.InfectionSuspected is true) AND (T.SIRSCritTemperature is true) AND (T.DiagnosticLacticAcid is true) AND (T.DiagnosticBlood is true) AND (T.DiagnosticIC is true) AND (T.SIRSCriteria2OrMore is true) AND (T.DiagnosticECG is true) |52,2154,s
+Chain Precedence[ER Registration, ER Triage] |A.org:group is C |(T.InfectionSuspected is true) AND (T.SIRSCritTemperature is true) AND (T.DiagnosticLacticAcid is true) AND (T.DiagnosticBlood is true) AND (T.DiagnosticIC is true) AND (T.SIRSCriteria2OrMore is true) AND (T.DiagnosticECG is true) |
 Existence[Leucocytes] | |
 Choice[Admission NC, ER Triage] | | |
 Choice[Admission NC, CRP] | | |
-Chain Precedence[IV Antibiotics, Admission NC] |A.org:group is F |T.org:group is A |92,14459,s
+Chain Precedence[IV Antibiotics, Admission NC] |A.org:group is F |T.org:group is A |
 Absence2[Admission IC] | |
 Choice[ER Sepsis Triage, Return ER] | | |
 Choice[ER Registration, Leucocytes] | | |
-Chain Precedence[IV Liquid, Admission NC] |A.org:group is I |T.org:group is A |92,14473,s
+Chain Precedence[IV Liquid, Admission NC] |A.org:group is I |T.org:group is A |
 Alternate Response[ER Registration, CRP] | | |
 Choice[CRP, IV Liquid] | | |
 Choice[ER Registration, Return ER] | | |
 Choice[Admission IC, ER Triage] | | |
 Choice[ER Triage, IV Liquid] | | |
 Choice[Leucocytes, Return ER] | | |
-Chain Response[Admission NC, Release A] |A.org:group is I |T.org:group is E |133020,957701,s
+Chain Response[Admission NC, Release A] |A.org:group is I |T.org:group is E |
 Alternate Response[ER Registration, Leucocytes] | | |
 Exactly1[ER Registration] | |
 Choice[CRP, Leucocytes] | | |
 Choice[ER Triage, Release A] | | |
-Chain Response[Admission IC, Admission NC] |A.org:group is J |T.org:group is J |61534,61534,s
+Chain Response[Admission IC, Admission NC] |A.org:group is J |T.org:group is J |

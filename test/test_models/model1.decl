@@ -8,6 +8,8 @@ activity Leucocytes
 bind Leucocytes: Leucocytes, org:group, Diagnose, Age
 activity CRP
 bind CRP: CRP, org:group, Diagnose, Age
+activity Release B
+bind Release B: org:group
 activity LacticAcid
 bind LacticAcid: org:group, LacticAcid
 activity IV Antibiotics
@@ -51,7 +53,7 @@ Hypoxie: false, true
 DiagnosticUrinarySediment: true, false
 DiagnosticECG: true, false
 Choice[Admission NC, Leucocytes] | | |
-Chain Precedence[Admission NC, Release B] |A.org:group is E |T.org:group is K |48225,48225,s
+Chain Precedence[Admission NC, Release B] |A.org:group is E |T.org:group is K |
 Absence2[IV Antibiotics] | |
 Choice[ER Registration, ER Triage] | | |
 Choice[ER Triage, Leucocytes] | | |
@@ -64,6 +66,6 @@ Chain Response[Admission NC, Release B] |A.org:group is K |T.org:group is E |
 Choice[CRP, ER Registration] | | |
 Choice[ER Registration, LacticAcid] | | |
 Choice[CRP, LacticAcid] | | |
-Chain Precedence[ER Sepsis Triage, IV Antibiotics] |A.org:group is L |T.org:group is L |15,11000,s
-Chain Response[ER Sepsis Triage, IV Antibiotics] |A.org:group is L |T.org:group is L |15,11000,s
+Chain Precedence[ER Sepsis Triage, IV Antibiotics] |A.org:group is L |T.org:group is L |
+Chain Response[ER Sepsis Triage, IV Antibiotics] |A.org:group is L |T.org:group is L |
 Choice[Admission NC, ER Registration] | | |
