@@ -16,7 +16,7 @@ class Declare4Py:
         self.log = None
         self.model = None
         self.log_length = None
-        self.supported_templates = tuple(map(lambda c: c.value, Template))
+        self.supported_templates = tuple(map(lambda c: c.templ_str, Template))
         self.binary_encoded_log = None
         self.frequent_item_sets = None
         self.conformance_checking_results = None
@@ -177,15 +177,14 @@ class Declare4Py:
             length = len(item_set)
 
             if length == 1:
-                for templ in Template.get_unary_templates_not_supporting_cardinality():
+                for templ in Template.get_unary_templates():
                     constraint = {"template": templ, "attributes": ', '.join(item_set), "condition": ("", "")}
-                    self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
-
-                for templ in Template.get_unary_templates_supporting_cardinality():
-                    for i in range(max_declare_cardinality):
-                        constraint = {"template": templ, "attributes": ', '.join(item_set), "condition": ("", ""),
-                                      "n": i + 1}
+                    if not templ.supports_cardinality:
                         self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
+                    else:
+                        for i in range(max_declare_cardinality):
+                            constraint['n'] = i+1
+                            self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
 
             elif length == 2:
                 for templ in Template.get_binary_templates():

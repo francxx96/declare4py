@@ -133,15 +133,14 @@ def parse_decl(lines):
 
             if template is not None:
                 attributes = split[1].split("]")[0]
-                tmp = {"template": template, "attributes": attributes}
+                tmp = {
+                    "template": template,
+                    "attributes": attributes,
+                    "condition": re.split(r'\s+\|', line)[1:]
+                }
 
-                if template in (Template.EXISTENCE, Template.ABSENCE, Template.EXACTLY, Template.INIT):
-                    tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[-1]]
-                    if template is not Template.INIT:   # set cardinality for supported templates
-                        tmp['n'] = 1 if not cardinality else int(cardinality)
-
-                else:   # Binary template
-                    tmp['condition'] = [re.split(r'\s+\|', line)[1], re.split(r'\s+\|', line)[2], re.split(r'\s+\|', line)[-1]]
+                if template.supports_cardinality:
+                    tmp['n'] = 1 if not cardinality else int(cardinality)
 
                 result.checkers.append(tmp)
 
