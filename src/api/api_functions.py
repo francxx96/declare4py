@@ -133,3 +133,6 @@ def discover_constraint(log, constraint, consider_vacuity):
                     discovery_res[constraint_str] = new_val
 
     return discovery_res
+
+def query_constraint(log, constraint, consider_vacuity, min_support):
+    pass
