@@ -134,5 +134,29 @@ def discover_constraint(log, constraint, consider_vacuity):
 
     return discovery_res
 
+
 def query_constraint(log, constraint, consider_vacuity, min_support):
-    pass
+    # Fake model composed by a single constraint
+    model = DeclModel()
+    model.checkers.append(constraint)
+
+    discovery_res = {}
+
+    for i, trace in enumerate(log):
+        trc_res = check_trace_conformance(trace, model, consider_vacuity)
+        
+        for constraint_str, checker_res in trc_res.items():  # trc_res will always have only one element inside
+            if checker_res.state == TraceState.SATISFIED:
+                
+                new_val = {(i, trace.attributes['concept:name']): checker_res}
+                if constraint_str in discovery_res:
+                    discovery_res[constraint_str] |= new_val
+                else:
+                    discovery_res[constraint_str] = new_val
+                    
+                if len(discovery_res[constraint_str]) / len(log) >= min_support:
+                    break
+        else:
+            continue
+        break
+    return discovery_res

@@ -1,6 +1,6 @@
 from src.parsers import *
 from src.api import *
-
+import sys
 import pm4py
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
@@ -227,7 +227,7 @@ class Declare4Py:
 
     def query_checking(self, consider_vacuity: bool, template_str: str = None, max_declare_cardinality: int = 1,
                        activation: str = None, target: str = None, act_cond: str = "", trg_cond: str = "",
-                       time_cond: str = "", min_support: float = 0.0, return_first: bool = False):
+                       time_cond: str = "", min_support: float = 1.0, return_first: bool = False):
         print("Computing query checking ...")
         if template_str is None and activation is None and target is None:
             raise RuntimeError("You must set at least one parameter among (template, activation, target).")
@@ -271,7 +271,7 @@ class Declare4Py:
                     if template.supports_cardinality:
                         if cardinality is not None and cardinality:
                             constraint['n'] = int(cardinality)
-                            for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
+                            for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
                                 if len(res) / len(self.log) >= min_support:
                                     res_value = {
                                         "template": template.templ_str + cardinality,
@@ -284,7 +284,7 @@ class Declare4Py:
                         else:
                             for i in range(max_declare_cardinality):
                                 constraint['n'] = i+1
-                                for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
+                                for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
                                     if len(res) / len(self.log) >= min_support:
                                         res_value = {
                                             "template": template.templ_str + str(i+1),
@@ -295,7 +295,7 @@ class Declare4Py:
                                         if return_first:
                                             return self.query_checking_results
                     else:
-                        for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
+                        for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
                             if len(res) / len(self.log) >= min_support:
                                 res_value = {
                                     "template": template.templ_str, "activation": couple[0], "target": couple[1],
@@ -314,7 +314,7 @@ class Declare4Py:
                     if template.supports_cardinality:
                         if cardinality is not None and cardinality:
                             constraint['n'] = int(cardinality)
-                            for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
+                            for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
                                 if len(res) / len(self.log) >= min_support:
                                     res_value = {
                                         "template": template.templ_str + cardinality, "activation": activity,
@@ -326,7 +326,7 @@ class Declare4Py:
                         else:
                             for i in range(max_declare_cardinality):
                                 constraint['n'] = i+1
-                                for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
+                                for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
                                     if len(res) / len(self.log) >= min_support:
                                         res_value = {
                                             "template": template.templ_str + str(i+1), "activation": activity,
@@ -336,7 +336,7 @@ class Declare4Py:
                                         if return_first:
                                             return self.query_checking_results
                     else:
-                        for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
+                        for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
                             if len(res) / len(self.log) >= min_support:
                                 res_value = {
                                     "template": template.templ_str, "activation": activity,
@@ -347,6 +347,23 @@ class Declare4Py:
                                     return self.query_checking_results
 
         return self.query_checking_results
+
+    def filter_query_checking(self, queries):
+        if self.query_checking_results is None:
+            raise RuntimeError("You must run a query checking task before.")
+        if len(queries) == 0 or len(queries) > 3:
+            raise RuntimeError("The list of queries has to contain at least one query and three queries as maximum")
+        assignments = []
+        for constraint in self.query_checking_results.keys():
+            tmp_answer = []
+            for query in queries:
+                try:
+                    tmp_answer.append(self.query_checking_results[constraint][query])
+                except KeyError:
+                    print(f"{query} is not a valid query. Valid queries are template, activation, target.")
+                    sys.exit(1)
+            assignments.append(tmp_answer)
+        return assignments
 
     # FUNCTIONS FOR PRINTING RESULTS ##############
     def print_conformance_results(self):
