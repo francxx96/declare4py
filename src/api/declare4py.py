@@ -262,70 +262,86 @@ class Declare4Py:
 
         for template in templates_to_check:
             constraint = {"template": template}
-            res_value = {"template": template.templ_str}
 
             if template.is_binary:
                 constraint['condition'] = (act_cond, trg_cond, time_cond)
-                res_value |= {"act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond}
-
                 for couple in activity_combos:
                     constraint['attributes'] = ', '.join(couple)
-                    res_value |= {"activation": couple[0], "target": couple[1]}
 
                     if template.supports_cardinality:
                         if cardinality is not None:
                             constraint['n'] = int(cardinality)
-                            res_value['template'] += cardinality
                             for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
                                 if len(res) / len(self.log) >= min_support:
+                                    res_value = {
+                                        "template": template.templ_str + cardinality,
+                                        "activation": couple[0], "target": couple[1],
+                                        "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond,
+                                    }
                                     self.query_checking_results[constraint_str] = res_value
                                     if return_first:
                                         return self.query_checking_results
                         else:
                             for i in range(max_declare_cardinality):
                                 constraint['n'] = i+1
-                                res_value['template'] += str(i+1)
                                 for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
                                     if len(res) / len(self.log) >= min_support:
+                                        res_value = {
+                                            "template": template.templ_str + str(i+1),
+                                            "activation": couple[0], "target": couple[1],
+                                            "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond,
+                                        }
                                         self.query_checking_results[constraint_str] = res_value
                                         if return_first:
                                             return self.query_checking_results
                     else:
                         for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
                             if len(res) / len(self.log) >= min_support:
+                                res_value = {
+                                    "template": template.templ_str, "activation": couple[0], "target": couple[1],
+                                    "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond,
+                                }
                                 self.query_checking_results[constraint_str] = res_value
                                 if return_first:
                                     return self.query_checking_results
 
             else:   # unary constraint
                 constraint['condition'] = (act_cond, time_cond)
-                res_value |= {"act_cond": act_cond, "time_cond": time_cond}
 
                 for activity in activations_to_check:
                     constraint['attributes'] = activity
-                    res_value |= {"activation": activity}
 
                     if template.supports_cardinality:
                         if cardinality is not None:
                             constraint['n'] = int(cardinality)
-                            res_value['template'] += cardinality
                             for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
                                 if len(res) / len(self.log) >= min_support:
+                                    res_value = {
+                                        "template": template.templ_str + cardinality, "activation": activity,
+                                        "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond,
+                                    }
                                     self.query_checking_results[constraint_str] = res_value
                                     if return_first:
                                         return self.query_checking_results
                         else:
                             for i in range(max_declare_cardinality):
                                 constraint['n'] = i+1
-                                res_value['template'] += str(i+1)
                                 for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
                                     if len(res) / len(self.log) >= min_support:
+                                        res_value = {
+                                            "template": template.templ_str + str(i+1), "activation": activity,
+                                            "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond,
+                                        }
                                         self.query_checking_results[constraint_str] = res_value
                                         if return_first:
                                             return self.query_checking_results
                     else:
                         for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
                             if len(res) / len(self.log) >= min_support:
+                                res_value = {
+                                    "template": template.templ_str, "activation": activity,
+                                    "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond,
+                                }
                                 self.query_checking_results[constraint_str] = res_value
                                 if return_first:
                                     return self.query_checking_results
