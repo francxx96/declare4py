@@ -269,7 +269,7 @@ class Declare4Py:
                     constraint['attributes'] = ', '.join(couple)
 
                     if template.supports_cardinality:
-                        if cardinality is not None:
+                        if cardinality is not None and cardinality:
                             constraint['n'] = int(cardinality)
                             for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
                                 if len(res) / len(self.log) >= min_support:
@@ -312,7 +312,7 @@ class Declare4Py:
                     constraint['attributes'] = activity
 
                     if template.supports_cardinality:
-                        if cardinality is not None:
+                        if cardinality is not None and cardinality:
                             constraint['n'] = int(cardinality)
                             for constraint_str, res in discover_constraint(self.log, constraint, consider_vacuity).items():
                                 if len(res) / len(self.log) >= min_support:
