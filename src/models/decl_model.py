@@ -8,7 +8,7 @@ class DeclModel(object):
         constraint_str = ''
         if len(self.checkers) > 0:
             for checker in self.checkers:
-                constraint_str = checker["template"] + '[' + checker["attributes"] + '] |' \
+                constraint_str = checker["template"].templ_str + '[' + checker["attributes"] + '] |' \
                                  + ' |'.join(checker["condition"])
                 self.constraints.append(constraint_str)
                 
