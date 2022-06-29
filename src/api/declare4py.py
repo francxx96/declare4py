@@ -256,7 +256,7 @@ class Declare4Py:
 
         activations_to_check = self.get_log_alphabet_activities() if activation is None else [activation]
         targets_to_check = self.get_log_alphabet_activities() if target is None else [target]
-        activity_combos = filter(lambda comb: comb[0] != comb[1], product(activations_to_check, targets_to_check))
+        activity_combos = tuple(filter(lambda comb: comb[0] != comb[1], product(activations_to_check, targets_to_check)))
 
         self.query_checking_results = {}
 
