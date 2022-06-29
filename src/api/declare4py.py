@@ -225,126 +225,88 @@ class Declare4Py:
 
         return result
 
-    def query_checking(self, consider_vacuity: bool, template_str: str = None, max_declare_cardinality: int = 1,
-                       activation: str = None, target: str = None, act_cond: str = "", trg_cond: str = "",
-                       time_cond: str = "", min_support: float = 1.0, return_first: bool = False):
+    def query_checking(self, consider_vacuity: bool,
+                       template_str: str = None, max_declare_cardinality: int = 1,
+                       activation: str = None, target: str = None,
+                       act_cond: str = "", trg_cond: str = "", time_cond: str = "",
+                       min_support: float = 1.0, return_first: bool = False):
         print("Computing query checking ...")
-        if template_str is None and activation is None and target is None:
+
+        is_template_given = template_str is not None and bool(template_str)
+        is_activation_given = activation is not None and bool(activation)
+        is_target_given = target is not None and bool(target)
+
+        if not is_template_given and not is_activation_given and not is_target_given:
             raise RuntimeError("You must set at least one parameter among (template, activation, target).")
-        if self.log is None:
-            raise RuntimeError("You must load a log before.")
+        if is_template_given:
+            template = Template.get_template_from_string(template_str)
+            if template is None:
+                raise RuntimeError("You must insert a supported DECLARE template.")
+            if not template.is_binary and is_target_given:
+                raise RuntimeError("You cannot specify a target activity for unary templates.")
         if not 0 <= min_support <= 1:
             raise RuntimeError("Min. support must be in range [0, 1].")
         if max_declare_cardinality <= 0:
             raise RuntimeError("Cardinality must be greater than 0.")
+        if self.log is None:
+            raise RuntimeError("You must load a log before.")
 
         templates_to_check = list()
-        cardinality = None
-        if template_str is None:
-            templates_to_check = list(Template)
+        if is_template_given:
+            templates_to_check.append(template_str)
         else:
-            template_search = re.search(r'(^\D+)(\d*$)', template_str)
-            if template_search is not None:
-                template_str, cardinality = template_search.groups()
-                template = Template.get_template_from_string(template_str)
-                if template is not None:
-                    templates_to_check.append(template)
-                else:
-                    raise RuntimeError("You must insert a supported DECLARE template.")
-            else:
-                raise RuntimeError("You must insert a supported DECLARE template.")
+            templates_to_check += list(map(lambda t: t.templ_str, Template.get_binary_templates()))
+            if not is_target_given:
+                for template in Template.get_unary_templates():
+                    if template.supports_cardinality:
+                        for card in range(max_declare_cardinality):
+                            templates_to_check.append(template.templ_str + str(card+1))
+                    else:
+                        templates_to_check.append(template.templ_str)
 
         activations_to_check = self.get_log_alphabet_activities() if activation is None else [activation]
         targets_to_check = self.get_log_alphabet_activities() if target is None else [target]
-        activity_combos = tuple(filter(lambda comb: comb[0] != comb[1], product(activations_to_check, targets_to_check)))
+        activity_combos = tuple(filter(lambda c: c[0] != c[1], product(activations_to_check, targets_to_check)))
 
         self.query_checking_results = {}
 
-        for template in templates_to_check:
+        for template_str in templates_to_check:
+            template_str, cardinality = re.search(r'(^.+?)(\d*$)', template_str).groups()
+            template = Template.get_template_from_string(template_str)
+
             constraint = {"template": template}
+            if cardinality:
+                constraint['n'] = int(cardinality)
 
             if template.is_binary:
                 constraint['condition'] = (act_cond, trg_cond, time_cond)
                 for couple in activity_combos:
                     constraint['attributes'] = ', '.join(couple)
 
-                    if template.supports_cardinality:
-                        if cardinality is not None and cardinality:
-                            constraint['n'] = int(cardinality)
-                            for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
-                                if len(res) / len(self.log) >= min_support:
-                                    res_value = {
-                                        "template": template.templ_str + cardinality,
-                                        "activation": couple[0], "target": couple[1],
-                                        "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond,
-                                    }
-                                    self.query_checking_results[constraint_str] = res_value
-                                    if return_first:
-                                        return self.query_checking_results
-                        else:
-                            for i in range(max_declare_cardinality):
-                                constraint['n'] = i+1
-                                for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
-                                    if len(res) / len(self.log) >= min_support:
-                                        res_value = {
-                                            "template": template.templ_str + str(i+1),
-                                            "activation": couple[0], "target": couple[1],
-                                            "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond,
-                                        }
-                                        self.query_checking_results[constraint_str] = res_value
-                                        if return_first:
-                                            return self.query_checking_results
-                    else:
-                        for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
-                            if len(res) / len(self.log) >= min_support:
-                                res_value = {
-                                    "template": template.templ_str, "activation": couple[0], "target": couple[1],
-                                    "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond,
-                                }
-                                self.query_checking_results[constraint_str] = res_value
-                                if return_first:
-                                    return self.query_checking_results
+                    for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
+                        if len(res) / len(self.log) >= min_support:
+                            res_value = {
+                                "template": template_str, "activation": couple[0], "target": couple[1],
+                                "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond
+                            }
+                            self.query_checking_results[constraint_str] = res_value
+                            if return_first:
+                                return self.query_checking_results
 
-            else:   # unary constraint
+            else:   # unary template
                 constraint['condition'] = (act_cond, time_cond)
-
                 for activity in activations_to_check:
                     constraint['attributes'] = activity
 
-                    if template.supports_cardinality:
-                        if cardinality is not None and cardinality:
-                            constraint['n'] = int(cardinality)
-                            for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
-                                if len(res) / len(self.log) >= min_support:
-                                    res_value = {
-                                        "template": template.templ_str + cardinality, "activation": activity,
-                                        "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond,
-                                    }
-                                    self.query_checking_results[constraint_str] = res_value
-                                    if return_first:
-                                        return self.query_checking_results
-                        else:
-                            for i in range(max_declare_cardinality):
-                                constraint['n'] = i+1
-                                for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
-                                    if len(res) / len(self.log) >= min_support:
-                                        res_value = {
-                                            "template": template.templ_str + str(i+1), "activation": activity,
-                                            "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond,
-                                        }
-                                        self.query_checking_results[constraint_str] = res_value
-                                        if return_first:
-                                            return self.query_checking_results
-                    else:
-                        for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
-                            if len(res) / len(self.log) >= min_support:
-                                res_value = {
-                                    "template": template.templ_str, "activation": activity,
-                                    "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond,
-                                }
-                                self.query_checking_results[constraint_str] = res_value
-                                if return_first:
-                                    return self.query_checking_results
+                    for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
+                        if len(res) / len(self.log) >= min_support:
+                            res_value = {
+                                "template": template_str, "activation": activity,
+                                "act_cond": act_cond, "time_cond": time_cond
+                            }
+                            self.query_checking_results[constraint_str] = res_value
+                            if return_first:
+                                return self.query_checking_results
 
         return self.query_checking_results
 

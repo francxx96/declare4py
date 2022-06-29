@@ -125,7 +125,7 @@ def parse_decl(lines):
             continue
 
         split = line.split("[", 1)
-        template_search = re.search(r'(^\D+)(\d*$)', split[0])
+        template_search = re.search(r'(^.+?)(\d*$)', split[0])
 
         if template_search is not None:
             template_str, cardinality = template_search.groups()

@@ -156,4 +156,5 @@ def query_constraint(log, constraint, consider_vacuity, min_support):
                     
                 if len(discovery_res[constraint_str]) / len(log) >= min_support:
                     return discovery_res
+
     return discovery_res
