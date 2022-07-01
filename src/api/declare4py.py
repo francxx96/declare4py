@@ -232,9 +232,9 @@ class Declare4Py:
                        min_support: float = 1.0, return_first: bool = False):
         print("Computing query checking ...")
 
-        is_template_given = template_str is not None and bool(template_str)
-        is_activation_given = activation is not None and bool(activation)
-        is_target_given = target is not None and bool(target)
+        is_template_given = bool(template_str)
+        is_activation_given = bool(activation)
+        is_target_given = bool(target)
 
         if not is_template_given and not is_activation_given and not is_target_given:
             raise RuntimeError("You must set at least one parameter among (template, activation, target).")
@@ -283,30 +283,30 @@ class Declare4Py:
                 for couple in activity_combos:
                     constraint['attributes'] = ', '.join(couple)
 
-                    for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
-                        if len(res) / len(self.log) >= min_support:
-                            res_value = {
-                                "template": template_str, "activation": couple[0], "target": couple[1],
-                                "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond
-                            }
-                            self.query_checking_results[constraint_str] = res_value
-                            if return_first:
-                                return self.query_checking_results
+                    constraint_str = query_constraint(self.log, constraint, consider_vacuity, min_support)
+                    if constraint_str:
+                        res_value = {
+                            "template": template_str, "activation": couple[0], "target": couple[1],
+                            "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond
+                        }
+                        self.query_checking_results[constraint_str] = res_value
+                        if return_first:
+                            return self.query_checking_results
 
             else:   # unary template
                 constraint['condition'] = (act_cond, time_cond)
                 for activity in activations_to_check:
                     constraint['attributes'] = activity
 
-                    for constraint_str, res in query_constraint(self.log, constraint, consider_vacuity, min_support).items():
-                        if len(res) / len(self.log) >= min_support:
-                            res_value = {
-                                "template": template_str, "activation": activity,
-                                "act_cond": act_cond, "time_cond": time_cond
-                            }
-                            self.query_checking_results[constraint_str] = res_value
-                            if return_first:
-                                return self.query_checking_results
+                    constraint_str = query_constraint(self.log, constraint, consider_vacuity, min_support)
+                    if constraint_str:
+                        res_value = {
+                            "template": template_str, "activation": activity,
+                            "act_cond": act_cond, "time_cond": time_cond
+                        }
+                        self.query_checking_results[constraint_str] = res_value
+                        if return_first:
+                            return self.query_checking_results
 
         return self.query_checking_results
 

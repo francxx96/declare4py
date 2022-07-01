@@ -140,21 +140,14 @@ def query_constraint(log, constraint, consider_vacuity, min_support):
     model = DeclModel()
     model.checkers.append(constraint)
 
-    discovery_res = {}
-
+    ctr = 0
     for i, trace in enumerate(log):
         trc_res = check_trace_conformance(trace, model, consider_vacuity)
-        
-        for constraint_str, checker_res in trc_res.items():  # trc_res will always have only one element inside
-            if checker_res.state == TraceState.SATISFIED:
-                
-                new_val = {(i, trace.attributes['concept:name']): checker_res}
-                if constraint_str in discovery_res:
-                    discovery_res[constraint_str] |= new_val
-                else:
-                    discovery_res[constraint_str] = new_val
-                    
-                if len(discovery_res[constraint_str]) / len(log) >= min_support:
-                    return discovery_res
+        constraint_str, checker_res = next(iter(trc_res.items()))  # trc_res will always have only one element inside
 
-    return discovery_res
+        if checker_res.state == TraceState.SATISFIED:
+            ctr += 1
+            if ctr / len(log) >= min_support:
+                return constraint_str
+
+    return None
