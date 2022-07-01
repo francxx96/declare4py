@@ -1,3 +1,5 @@
+from math import ceil
+
 from src.constraint_checkers import *
 from src.models import DeclModel
 
@@ -123,14 +125,14 @@ def discover_constraint(log, constraint, consider_vacuity):
 
     for i, trace in enumerate(log):
         trc_res = check_trace_conformance(trace, model, consider_vacuity)
+        constraint_str, checker_res = next(iter(trc_res.items()))  # trc_res will always have only one element inside
 
-        for constraint_str, checker_res in trc_res.items():  # trc_res will always have only one element inside
-            if checker_res.state == TraceState.SATISFIED:
-                new_val = {(i, trace.attributes['concept:name']): checker_res}
-                if constraint_str in discovery_res:
-                    discovery_res[constraint_str] |= new_val
-                else:
-                    discovery_res[constraint_str] = new_val
+        if checker_res.state == TraceState.SATISFIED:
+            new_val = {(i, trace.attributes['concept:name']): checker_res}
+            if constraint_str in discovery_res:
+                discovery_res[constraint_str] |= new_val
+            else:
+                discovery_res[constraint_str] = new_val
 
     return discovery_res
 
@@ -140,14 +142,18 @@ def query_constraint(log, constraint, consider_vacuity, min_support):
     model = DeclModel()
     model.checkers.append(constraint)
 
-    ctr = 0
+    sat_ctr = 0
     for i, trace in enumerate(log):
         trc_res = check_trace_conformance(trace, model, consider_vacuity)
         constraint_str, checker_res = next(iter(trc_res.items()))  # trc_res will always have only one element inside
 
         if checker_res.state == TraceState.SATISFIED:
-            ctr += 1
-            if ctr / len(log) >= min_support:
+            sat_ctr += 1
+            # If the constraint is already above the minimum support, return it directly
+            if sat_ctr / len(log) >= min_support:
                 return constraint_str
+        # If there aren't enough more traces to reach the minimum support, return nothing
+        if len(log) - (i+1) < ceil(len(log) * min_support) - sat_ctr:
+            return None
 
     return None
