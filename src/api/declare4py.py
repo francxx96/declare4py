@@ -228,13 +228,19 @@ class Declare4Py:
     def query_checking(self, consider_vacuity: bool,
                        template_str: str = None, max_declare_cardinality: int = 1,
                        activation: str = None, target: str = None,
-                       act_cond: str = "", trg_cond: str = "", time_cond: str = "",
+                       act_cond: str = None, trg_cond: str = None, time_cond: str = None,
                        min_support: float = 1.0, return_first: bool = False):
         print("Computing query checking ...")
 
         is_template_given = bool(template_str)
         is_activation_given = bool(activation)
         is_target_given = bool(target)
+        if not act_cond:
+            act_cond = ""
+        if not trg_cond:
+            trg_cond = ""
+        if not time_cond:
+            time_cond = ""
 
         if not is_template_given and not is_activation_given and not is_target_given:
             raise RuntimeError("You must set at least one parameter among (template, activation, target).")

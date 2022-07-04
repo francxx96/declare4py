@@ -110,8 +110,7 @@ def check_trace_conformance(trace, model, consider_vacuity):
         except SyntaxError:
             if constraint_str not in error_constraint_set:
                 error_constraint_set.add(constraint_str)
-                print('Condition not properly formatted for constraint "' + constraint_str
-                      + '". Skipping it in conformance checking.')
+                print('Condition not properly formatted for constraint "' + constraint_str + '".')
 
     return trace_results
 
@@ -125,8 +124,10 @@ def discover_constraint(log, constraint, consider_vacuity):
 
     for i, trace in enumerate(log):
         trc_res = check_trace_conformance(trace, model, consider_vacuity)
-        constraint_str, checker_res = next(iter(trc_res.items()))  # trc_res will always have only one element inside
+        if not trc_res:     # Occurring when constraint data conditions are formatted bad
+            break
 
+        constraint_str, checker_res = next(iter(trc_res.items()))  # trc_res will always have only one element inside
         if checker_res.state == TraceState.SATISFIED:
             new_val = {(i, trace.attributes['concept:name']): checker_res}
             if constraint_str in discovery_res:
@@ -145,8 +146,10 @@ def query_constraint(log, constraint, consider_vacuity, min_support):
     sat_ctr = 0
     for i, trace in enumerate(log):
         trc_res = check_trace_conformance(trace, model, consider_vacuity)
-        constraint_str, checker_res = next(iter(trc_res.items()))  # trc_res will always have only one element inside
+        if not trc_res:     # Occurring when constraint data conditions are formatted bad
+            break
 
+        constraint_str, checker_res = next(iter(trc_res.items()))  # trc_res will always have only one element inside
         if checker_res.state == TraceState.SATISFIED:
             sat_ctr += 1
             # If the constraint is already above the minimum support, return it directly
