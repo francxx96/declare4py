@@ -1,5 +1,5 @@
-from src.parsers import *
-from src.api import *
+from .parsers import *
+from .api_functions import *
 import sys
 import pm4py
 import pandas as pd

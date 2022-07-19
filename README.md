@@ -1,6 +1,6 @@
 # Declare4Py
 
-Declare4PY is a novel and easy-to-use Python package that covers the main tasks of process mining based on the 
+Declare4Py is a novel and easy-to-use Python package that covers the main tasks of process mining based on the 
 declarative modeling language DECLARE. Some functions include also the MP-DECLARE standard, that is, the 
 multi-perspective extension of DECLARE that supports also data constraints. The declare4PY APIs implement simple log analysis, consistency 
 checking, model discovery and query checking from logs by considering (MP)-DECLARE models. Declare4Py can be easily 

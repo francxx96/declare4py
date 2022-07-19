@@ -1,7 +1,7 @@
 from math import ceil
 
-from src.constraint_checkers import *
-from src.models import DeclModel
+from .constraint_checkers import *
+from .models import DeclModel
 
 
 def check_trace_conformance(trace, model, consider_vacuity):

@@ -1,5 +1,5 @@
-from src.enums import Template
-from src.models import DeclModel
+from ..enums import Template
+from ..models import DeclModel
 import re
 
 

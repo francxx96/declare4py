@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "declare4py"
+description = "Python library to perform discovery, conformance checking and query checking of DECLARE constraints."
+readme = "README.md"
+requires-python = ">=3.9.7"
+keywords = [
+    "python", "bpm", "declare", "process-mining",
+    "rule-mining", "business-process-management",
+    "declarative-process-models"
+]
+#license = {text = "GPL"}
+authors = [
+    { name = "Ivan Donadello", email = "ivan.donadello@unibz.it" },
+    { name = "Francesco Riva", email = "francesco.riva@unibz.it" },
+    { name = "Fabrizio Maria Maggi", email = "maggi@inf.unibz.it" },
+    { name = "Aladdin Shikhizada", email = "aladdin.shikhizada@gmail.com" }
+]
+dependencies = [
+    "mlxtend >= 0.20.0",
+    "Pm4Py >= 2.2.21",
+    "Pandas >= 1.3.4"
+]
+dynamic = ["version"]

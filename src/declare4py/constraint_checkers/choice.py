@@ -1,6 +1,6 @@
-from src.enums import TraceState
-from src.models import CheckerResult
-from src.parsers import parse_data_cond, parse_time_cond
+from ..enums import TraceState
+from ..models import CheckerResult
+from ..parsers import parse_data_cond, parse_time_cond
 from datetime import timedelta
 
 # Defining global and local functions/variables to use within eval() to prevent code injection
