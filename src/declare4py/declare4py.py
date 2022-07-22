@@ -1,5 +1,3 @@
- from typing import Tuple, Any
-
 from .parsers import *
 from .api_functions import *
 import sys
@@ -289,7 +287,7 @@ class Declare4Py:
         """
         self.model = parse_decl_from_file(model_path)
 
-    def get_supported_templates(self) -> tuple[Any, ...]:
+    def get_supported_templates(self) -> tuple[str, ...]:
         """
         Return the DECLARE templates supported by Declare4Py.
 
