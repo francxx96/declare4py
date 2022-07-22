@@ -1,3 +1,5 @@
+ from typing import Tuple, Any
+
 from .parsers import *
 from .api_functions import *
 import sys
@@ -10,7 +12,35 @@ from itertools import product
 
 class Declare4Py:
     """
-    Class for Declare4Py
+    Wrapper that collects the input log and model, the output for the discovery, conformance checking and query
+    checking tasks. In addition,
+
+    Attributes
+    ----------
+    log : EventLog
+        the input event log parsed from a XES file
+    model : DeclModel
+        the input DECLARE model parsed from a decl file
+    log_length : int
+        the trace number of the input log
+    supported_templates : tuple[str]
+        tuple containing all the DECLARE templates supported by the Declare4Py library
+    binary_encoded_log : DataFrame
+        the binary encoded version of the input log
+    frequent_item_sets : DataFrame
+        list of the most frequent item sets found along the log traces, together with their support and length
+    conformance_checking_results : dict[tuple[int, str]: dict[str: CheckerResult]]
+        output dictionary of the conformance_checking() function. Each entry contains:
+        key = tuple[trace_pos_inside_log, trace_name]
+        val = dict[ constraint_string : CheckerResult ]
+    query_checking_results : dict[str: dict[str: str]]
+        output dictionary of the query_checking() function. Each entry contains:
+        key = constraint_string
+        val = dict[ constraint_elem_key : constraint_elem_val ]
+    discovery_results : dict[str: dict[tuple[int, str]: CheckerResult]]
+        output dictionary of the discovery() function. Each entry contains:
+        key = constraint_string
+        val = dict[ tuple[trace_pos_inside_log, trace_name] : CheckerResult ]
     """
 
     def __init__(self):
@@ -25,11 +55,28 @@ class Declare4Py:
         self.discovery_results = None
 
     # LOG MANAGEMENT UTILITIES
-    def parse_xes_log(self, log_path):
+    def parse_xes_log(self, log_path: str) -> None:
+        """
+        Set the 'log' EventLog object and the 'log_length' integer by reading and parsing the log corresponding to
+        given log file path.
+
+        Parameters
+        ----------
+        log_path : str
+            File path where the log is stored.
+        """
         self.log = pm4py.read_xes(log_path)
         self.log_length = len(self.log)
 
-    def activities_log_projection(self):
+    def activities_log_projection(self) -> list[list[str]]:
+        """
+        Return for each trace a time-ordered list of the activity names of the events.
+
+        Returns
+        -------
+        projection
+            nested lists, the outer one addresses traces while the inner one contains event activity names.
+        """
         projection = []
         if self.log is None:
             raise RuntimeError("You must load a log before.")
@@ -40,7 +87,15 @@ class Declare4Py:
             projection.append(tmp_trace)
         return projection
 
-    def resources_log_projection(self):
+    def resources_log_projection(self) -> list[list[str]]:
+        """
+        Return for each trace a time-ordered list of the resources of the events.
+
+        Returns
+        -------
+        projection
+            nested lists, the outer one addresses traces while the inner one contains event activity names.
+        """
         projection = []
         if self.log is None:
             raise RuntimeError("You must load a log before.")
@@ -51,7 +106,21 @@ class Declare4Py:
             projection.append(tmp_trace)
         return projection
 
-    def log_encoding(self, dimension: str = 'act'):
+    def log_encoding(self, dimension: str = 'act') -> pd.DataFrame:
+        """
+        Return the log binary encoding, i.e. the one-hot encoding stating whether an attribute is contained
+        or not inside each trace of the log.
+
+        Parameters
+        ----------
+        dimension : str, optional
+            choose 'act' to perform the encoding over activity names, 'payload' over resources (default 'act').
+
+        Returns
+        -------
+        binary_encoded_log
+            the one-hot encoding of the input log, made over activity names or resources depending on 'dimension' value.
+        """
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         te = TransactionEncoder()
@@ -60,13 +129,28 @@ class Declare4Py:
         elif dimension == 'payload':
             dataset = self.resources_log_projection()
         else:
-            raise RuntimeError(f"{dimension} dimension not supported. Choose between act and payload")
+            raise RuntimeError(f"{dimension} dimension not supported. Choose between 'act' and 'payload'")
         te_ary = te.fit(dataset).transform(dataset)
         self.binary_encoded_log = pd.DataFrame(te_ary, columns=te.columns_)
         return self.binary_encoded_log
 
     def compute_frequent_itemsets(self, min_support: float, dimension: str = 'act', algorithm: str = 'fpgrowth',
-                                  len_itemset: int = None):
+                                  len_itemset: int = None) -> None:
+        """
+        Compute the most frequent item sets with a support greater or equal than 'min_support' with the given algorithm
+        and over the given dimension.
+
+        Parameters
+        ----------
+        min_support: float
+            the minimum support of the returned item sets.
+        dimension : str, optional
+            choose 'act' to perform the encoding over activity names, 'payload' over resources (default 'act').
+        algorithm : str, optional
+            the algorithm for extracting frequent itemsets, choose between 'fpgrowth' (default) and 'apriori'.
+        len_itemset : int, optional
+            the maximum length of the extracted itemsets.
+        """
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         if not 0 <= min_support <= 1:
@@ -85,7 +169,15 @@ class Declare4Py:
         else:
             self.frequent_item_sets = frequent_itemsets[(frequent_itemsets['length'] <= len_itemset)]
 
-    def get_trace_keys(self):
+    def get_trace_keys(self) -> list[tuple[int, str]]:
+        """
+        Return the name of each trace, along with the position in the log.
+
+        Returns
+        -------
+        trace_ids
+            list containing the position in the log and the name of the trace.
+        """
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         trace_ids = []
@@ -93,17 +185,41 @@ class Declare4Py:
             trace_ids.append((trace_id, trace.attributes["concept:name"]))
         return trace_ids
 
-    def get_log_length(self):
+    def get_log_length(self) -> int:
+        """
+        Return the number of traces contained in the log.
+
+        Returns
+        -------
+        log_length
+            the length of the log.
+        """
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         return self.log_length
 
-    def get_log(self):
+    def get_log(self) -> pm4py.objects.log.obj.EventLog:
+        """
+        Return the log previously fed in input.
+
+        Returns
+        -------
+        log
+            the input log.
+        """
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         return self.log
 
-    def get_log_alphabet_payload(self):
+    def get_log_alphabet_payload(self) -> set[str]:
+        """
+        Return the set of resources that are in the log.
+
+        Returns
+        -------
+        resources
+            resource set.
+        """
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         resources = set()
@@ -113,6 +229,14 @@ class Declare4Py:
         return resources
 
     def get_log_alphabet_activities(self):
+        """
+        Return the set of activities that are in the log.
+
+        Returns
+        -------
+        activities
+            activity set.
+        """
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         activities = set()
@@ -121,35 +245,107 @@ class Declare4Py:
                 activities.add(event["concept:name"])
         return list(activities)
 
-    def get_frequent_item_sets(self):
-        if self.log is None:
-            raise RuntimeError("You must load a log before.")
+    def get_frequent_item_sets(self) -> pd.DataFrame:
+        """
+        Return the set of extracted frequent item sets.
 
-        return self.frequent_item_sets
-
-    def get_binary_encoded_log(self):
+        Returns
+        -------
+        frequent_item_sets
+            the set of extracted frequent item sets.
+        """
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         if self.frequent_item_sets is None:
-            raise RuntimeError("You must run apriori algorithm before.")
+            raise RuntimeError("You must run the item set extraction algorithm before.")
+
+        return self.frequent_item_sets
+
+    def get_binary_encoded_log(self) -> pd.DataFrame:
+        """
+        Return the one-hot encoding of the log.
+
+        Returns
+        -------
+        binary_encoded_log
+            the one-hot encoded log.
+        """
+        if self.log is None:
+            raise RuntimeError("You must load a log before.")
+        if self.frequent_item_sets is None:
+            raise RuntimeError("You must run the item set extraction algorithm before.")
 
         return self.binary_encoded_log
 
     # DECLARE UTILITIES
-    def parse_decl_model(self, model_path):
+    def parse_decl_model(self, model_path) -> None:
+        """
+        Parse the input DECLARE model.
+
+        Parameters
+        ----------
+        model_path : str
+            File path where the DECLARE model is stored.
+        """
         self.model = parse_decl_from_file(model_path)
 
-    def get_supported_templates(self):
+    def get_supported_templates(self) -> tuple[Any, ...]:
+        """
+        Return the DECLARE templates supported by Declare4Py.
+
+        Returns
+        -------
+        supported_templates
+            tuple of names of the supported DECLARE templates.
+        """
         return self.supported_templates
 
-    def get_model_activities(self):
+    def get_model_activities(self) -> list[str]:
+        """
+        Return the activities contained in the DECLARE model.
+
+        Returns
+        -------
+        activities
+            list of activity names contained in the DECLARE model.
+        """
+        if self.model is None:
+            raise RuntimeError("You must load a DECLARE model before.")
+
         return self.model.activities
 
-    def get_model_constraints(self):
+    def get_model_constraints(self) -> list[str]:
+        """
+        Return the constraints contained in the DECLARE model.
+
+        Returns
+        -------
+        activities
+            list of constraints contained in the DECLARE model.
+        """
+        if self.model is None:
+            raise RuntimeError("You must load a DECLARE model before.")
+
         return self.model.get_decl_model_constraints()
 
     # PROCESS MINING TASKS
-    def conformance_checking(self, consider_vacuity: bool):
+    def conformance_checking(self, consider_vacuity: bool) -> dict[tuple[int, str]: dict[str: CheckerResult]]:
+        """
+        Performs conformance checking for the provided event log and DECLARE model.
+
+        Parameters
+        ----------
+        consider_vacuity : bool
+            True means that vacuously satisfied traces are considered as satisfied, violated otherwise.
+
+        Returns
+        -------
+        conformance_checking_results
+            dictionary where the key is a list containing trace position inside the log and the trace name, the value is
+            a dictionary with keys the names of the constraints and values a CheckerResult object containing
+            the number of pendings, activations, violations, fulfilments and the truth value of the trace for that
+            constraint.
+        """
         print("Computing conformance checking ...")
         if self.log is None:
             raise RuntimeError("You must load the log before checking the model.")
@@ -163,7 +359,30 @@ class Declare4Py:
 
         return self.conformance_checking_results
 
-    def discovery(self, consider_vacuity: bool, max_declare_cardinality: int = 3, output_path=None):
+    def discovery(self, consider_vacuity: bool, max_declare_cardinality: int = 3, output_path: str = None) \
+            -> dict[str: dict[tuple[int, str]: CheckerResult]]:
+        """
+        Performs discovery of the supported DECLARE templates for the provided log by using the computed frequent item
+        sets.
+
+        Parameters
+        ----------
+        consider_vacuity : bool
+            True means that vacuously satisfied traces are considered as satisfied, violated otherwise.
+
+        max_declare_cardinality : int, optional
+            the maximum cardinality that the algorithm checks for DECLARE templates supporting it (default 3).
+
+        output_path : str, optional
+            if specified, save the discovered constraints in a DECLARE model to the provided path.
+
+        Returns
+        -------
+        discovery_results
+            dictionary containing the results indexed by discovered constraints. The value is a dictionary with keys
+            the tuples containing id and name of traces that satisfy the constraint. The values of this inner dictionary
+            is a CheckerResult object containing the number of pendings, activations, violations, fulfilments.
+        """
         print("Computing discovery ...")
         if self.log is None:
             raise RuntimeError("You must load a log before.")
@@ -203,7 +422,26 @@ class Declare4Py:
 
         return self.discovery_results
 
-    def filter_discovery(self, min_support: float = 0, output_path: str = None):
+    def filter_discovery(self, min_support: float = 0, output_path: str = None) \
+            -> dict[str: dict[tuple[int, str]: CheckerResult]]:
+        """
+        Filters discovery results by means of minimum support.
+
+        Parameters
+        ----------
+        min_support : float, optional
+            the minimum support that a discovered constraint needs to have to be included in the filtered result.
+
+        output_path : str, optional
+            if specified, save the filtered constraints in a DECLARE model to the provided path.
+
+        Returns
+        -------
+        result
+            dictionary containing the results indexed by discovered constraints. The value is a dictionary with keys
+            the tuples containing id and name of traces that satisfy the constraint. The values of this inner dictionary
+            is a CheckerResult object containing the number of pendings, activations, violations, fulfilments.
+        """
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         if self.discovery_results is None:
@@ -229,7 +467,53 @@ class Declare4Py:
                        template_str: str = None, max_declare_cardinality: int = 1,
                        activation: str = None, target: str = None,
                        act_cond: str = None, trg_cond: str = None, time_cond: str = None,
-                       min_support: float = 1.0, return_first: bool = False):
+                       min_support: float = 1.0, return_first: bool = False) -> dict[str: dict[str: str]]:
+        """
+        Performs query checking for a (list of) template, activation activity and target activity. Optional
+        activation, target and time conditions can be specified.
+
+        Parameters
+        ----------
+        consider_vacuity : bool
+            True means that vacuously satisfied traces are considered as satisfied, violated otherwise.
+
+        template_str : str, optional
+            if specified, the query checking is restricted on this DECLARE template. If not, the query checking is
+            performed over the whole set of supported templates.
+
+        max_declare_cardinality : int, optional
+            the maximum cardinality that the algorithm checks for DECLARE templates supporting it (default 1).
+
+        activation : str, optional
+            if specified, the query checking is restricted on this activation activity. If not, the query checking
+            considers in turn each activity of the log as activation.
+
+        target : str, optional
+            if specified, the query checking is restricted on this target activity. If not, the query checking
+            considers in turn each activity of the log as target.
+
+        act_cond : str, optional
+            optional activation condition to evaluate. It has to be written by following the DECLARE standard format.
+
+        trg_cond : str, optional
+            optional target condition to evaluate. It has to be written by following the DECLARE standard format.
+
+        time_cond : str, optional
+            optional time condition to evaluate. It has to be written by following the DECLARE standard format.
+
+        min_support : float, optional
+            the minimum support that a constraint needs to have to be included in the result (default 1).
+
+        return_first : bool, optional
+            if True, the algorithm returns only the first queried constraint that is above the minimum support. If
+            False, the algorithm returns all the constraints above the min. support (default False).
+
+        Returns
+        -------
+        query_checking_results
+            dictionary with keys the DECLARE constraints satisfying the assignments. The values are a structured
+            representations of these constraints.
+        """
         print("Computing query checking ...")
 
         is_template_given = bool(template_str)
@@ -316,7 +600,22 @@ class Declare4Py:
 
         return self.query_checking_results
 
-    def filter_query_checking(self, queries):
+    def filter_query_checking(self, queries) -> list[list[str]]:
+        """
+        Filter query checking.
+
+        Parameters
+        ----------
+        queries : list[str]
+            elements of the constraint that the user want to filter out from query checking result. Choose one (or more)
+            elements among: 'template', 'activation', 'target'.
+
+        Returns
+        -------
+        assignments
+            list containing an entry for each constraint of query checking result. Each entry of the list is a list
+            itself, containing the queried constraint elements.
+        """
         if self.query_checking_results is None:
             raise RuntimeError("You must run a query checking task before.")
         if len(queries) == 0 or len(queries) > 3:
