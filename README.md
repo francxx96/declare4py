@@ -14,6 +14,12 @@ We tested Declare4Py with the following software configuration. However, more re
 - Pm4Py==2.2.21;
 - Pandas==1.3.4;
 
+## Installation
+Once the requirements are satisfied, Declare4Py can be easily installed by following these steps:
+1. download the repository;
+2. enter into the `dist` folder;
+3. run `pip install declare4py-1.0.0.tar.gz`.
+
 ## Tutorials
 The `tutorials/` folder contains a walk-through of Declare4Py. In order, the tutorials cover the following topics:
 
@@ -26,10 +32,13 @@ The `tutorials/` folder contains a walk-through of Declare4Py. In order, the tut
 The tutorials are Jupyter notebooks and consider the [Sepsis cases log](https://data.4tu.nl/articles/dataset/Sepsis_Cases_-_Event_Log/12707639).
 
 ## Repository Structure
-- `src/api/` -- core system containing the main Declare4Py functions.
-- `src/constraint_checkers/` -- the implementation of the checkers of the DECLARE constraints.
-- `src/models/` -- data models supporting the data structures for Declare4Py.
-- `test/` -- a collection of tests for computing the Declare4Py performance;
+- `src/declare4py/api_functions.py` -- core system containing the main Declare4Py functions.
+- `src/declare4py/declare4py.py` -- a wrapper to the main Declare4Py functions containing the main Declare4Py class.
+- `src/declare4py/constraint_checkers/` -- the implementation of the checkers of the DECLARE constraints.
+- `src/declare4py/models/` -- data models supporting the data structures for Declare4Py.
+- `docs/declare4py/index.html` -- documentation for Declare4Py in `html` format.
+- `dist` -- built package containing Declare4Py for easing the user with the installation.
+- `tests/` -- a collection of tests for computing the Declare4Py performance.
 - `tutorials/` -- tutorials to start with Declare4Py,
 
 ## Citing Declare4Py
