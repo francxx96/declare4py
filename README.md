@@ -17,6 +17,7 @@ We tested Declare4Py with the following software configuration. However, more re
 ## Tutorials
 The `tutorials/` folder contains a walk-through of Declare4Py. In order, the tutorials cover the following topics:
 
+- [System overview](https://github.com/francxx96/declare4py/blob/main/tutorials/system_overview.ipynb): an overview of the Python modules composing Declare4Py;
 - [Log analysis](https://github.com/francxx96/declare4py/blob/main/tutorials/log_analysis.ipynb): simple functions to extract useful information from logs;
 - [Model checking](https://github.com/francxx96/declare4py/blob/main/tutorials/conformance_checking.ipynb): check what are the traces that satisfy a given DECLARE model;
 - [Model Discovery](https://github.com/francxx96/declare4py/blob/main/tutorials/model_discovery.ipynb): discover what are the most satisfied DECLARE constraints in a given log;
