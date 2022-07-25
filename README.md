@@ -15,7 +15,7 @@ We tested Declare4Py with the following software configuration. However, more re
 - Pandas==1.3.4;
 
 ## Installation
-Once the requirements are satisfied, Declare4Py can be easily installed by following these steps:
+Declare4Py can be easily installed by following these steps:
 1. download the repository;
 2. enter into the `dist` folder;
 3. run `pip install declare4py-1.0.0.tar.gz`.
