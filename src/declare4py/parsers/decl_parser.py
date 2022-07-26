@@ -36,8 +36,8 @@ def parse_data_cond(cond):
                             py_cond = py_cond + " =="
 
                         tmp = []
-                        while not(cond.startswith(')') or cond.lower().startswith('and')
-                                  or cond.lower().startswith('or')):
+                        while cond and not (cond.startswith(')') or cond.lower().startswith('and')
+                                            or cond.lower().startswith('or')):
                             w = re.split(r'[\s()]+', cond)[0]
                             cond = cond[len(w):].lstrip()
                             tmp.append(w)
@@ -53,8 +53,8 @@ def parse_data_cond(cond):
 
                     elif next_word.lower() == "same":
                         tmp = []
-                        while not (cond.startswith(')') or cond.lower().startswith('and')
-                                   or cond.lower().startswith('or')):
+                        while cond and not (cond.startswith(')') or cond.lower().startswith('and')
+                                            or cond.lower().startswith('or')):
                             w = re.split(r'[\s()]+', cond)[0]
                             cond = cond[len(w):].lstrip()
                             tmp.append(w)
@@ -65,8 +65,8 @@ def parse_data_cond(cond):
 
                     elif next_word.lower() == "different":
                         tmp = []
-                        while not (cond.startswith(')') or cond.lower().startswith('and')
-                                   or cond.lower().startswith('or')):
+                        while cond and not (cond.startswith(')') or cond.lower().startswith('and')
+                                            or cond.lower().startswith('or')):
                             w = re.split(r'[\s()]+', cond)[0]
                             cond = cond[len(w):].lstrip()
                             tmp.append(w)
