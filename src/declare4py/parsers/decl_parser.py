@@ -35,10 +35,15 @@ def parse_data_cond(cond):
                         else:
                             py_cond = py_cond + " =="
 
-                        attr = re.split(r'[\s()]+', cond)[0]
-                        cond = cond[len(attr):].lstrip()
+                        tmp = []
+                        while not(cond.startswith(')') or cond.lower().startswith('and')
+                                  or cond.lower().startswith('or')):
+                            w = re.split(r'[\s()]+', cond)[0]
+                            cond = cond[len(w):].lstrip()
+                            tmp.append(w)
 
-                        py_cond = py_cond + ' "' + attr + '"'
+                        attr = " ".join(tmp)
+                        py_cond += ' "' + attr + '"'
 
                     elif next_word == "=":
                         py_cond = py_cond + " =="
@@ -47,16 +52,26 @@ def parse_data_cond(cond):
                         py_cond = py_cond + " " + next_word.lower()
 
                     elif next_word.lower() == "same":
-                        attr = re.split(r'[\s()]+', cond)[0]
-                        cond = cond[len(attr):].lstrip()
+                        tmp = []
+                        while not (cond.startswith(')') or cond.lower().startswith('and')
+                                   or cond.lower().startswith('or')):
+                            w = re.split(r'[\s()]+', cond)[0]
+                            cond = cond[len(w):].lstrip()
+                            tmp.append(w)
 
+                        attr = " ".join(tmp)
                         py_cond = py_cond + " " + attr + " in A and " + attr + " in T " \
                                   + 'and A["' + attr + '"] == T["' + attr + '"]'
 
                     elif next_word.lower() == "different":
-                        attr = re.split(r'[\s()]+', cond)[0]
-                        cond = cond[len(attr):].lstrip()
+                        tmp = []
+                        while not (cond.startswith(')') or cond.lower().startswith('and')
+                                   or cond.lower().startswith('or')):
+                            w = re.split(r'[\s()]+', cond)[0]
+                            cond = cond[len(w):].lstrip()
+                            tmp.append(w)
 
+                        attr = " ".join(tmp)
                         py_cond = py_cond + " " + attr + " in A and " + attr + " in T " \
                                   + 'and A["' + attr + '"] != T["' + attr + '"]'
 
