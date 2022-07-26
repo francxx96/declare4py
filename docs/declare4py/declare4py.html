@@ -38,8 +38,9 @@ from itertools import product
 
 class Declare4Py:
     &#34;&#34;&#34;
-    Wrapper that collects the input log and model, the output for the discovery, conformance checking and query
-    checking tasks. In addition,
+    Wrapper that collects the input log and model, the supported templates, the output for the discovery, conformance
+    checking and query checking tasks. In addition, it contains the computed binary encoding and frequent item sets
+    for the input log.
 
     Attributes
     ----------
@@ -628,12 +629,13 @@ class Declare4Py:
 
     def filter_query_checking(self, queries) -&gt; list[list[str]]:
         &#34;&#34;&#34;
-        Filter query checking.
+        The function outputs, for each constraint of the query checking result, only the elements of the constraint
+        specified in the &#39;queries&#39; list.
 
         Parameters
         ----------
         queries : list[str]
-            elements of the constraint that the user want to filter out from query checking result. Choose one (or more)
+            elements of the constraint that the user want to retain from query checking result. Choose one (or more)
             elements among: &#39;template&#39;, &#39;activation&#39;, &#39;target&#39;.
 
         Returns
@@ -683,8 +685,9 @@ class Declare4Py:
 <span>class <span class="ident">Declare4Py</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Wrapper that collects the input log and model, the output for the discovery, conformance checking and query
-checking tasks. In addition,</p>
+<div class="desc"><p>Wrapper that collects the input log and model, the supported templates, the output for the discovery, conformance
+checking and query checking tasks. In addition, it contains the computed binary encoding and frequent item sets
+for the input log.</p>
 <h2 id="attributes">Attributes</h2>
 <dl>
 <dt><strong><code>log</code></strong> :&ensp;<code>EventLog</code></dt>
@@ -718,8 +721,9 @@ val = dict[ tuple[trace_pos_inside_log, trace_name] : CheckerResult ]</dd>
 </summary>
 <pre><code class="python">class Declare4Py:
     &#34;&#34;&#34;
-    Wrapper that collects the input log and model, the output for the discovery, conformance checking and query
-    checking tasks. In addition,
+    Wrapper that collects the input log and model, the supported templates, the output for the discovery, conformance
+    checking and query checking tasks. In addition, it contains the computed binary encoding and frequent item sets
+    for the input log.
 
     Attributes
     ----------
@@ -1308,12 +1312,13 @@ val = dict[ tuple[trace_pos_inside_log, trace_name] : CheckerResult ]</dd>
 
     def filter_query_checking(self, queries) -&gt; list[list[str]]:
         &#34;&#34;&#34;
-        Filter query checking.
+        The function outputs, for each constraint of the query checking result, only the elements of the constraint
+        specified in the &#39;queries&#39; list.
 
         Parameters
         ----------
         queries : list[str]
-            elements of the constraint that the user want to filter out from query checking result. Choose one (or more)
+            elements of the constraint that the user want to retain from query checking result. Choose one (or more)
             elements among: &#39;template&#39;, &#39;activation&#39;, &#39;target&#39;.
 
         Returns
@@ -1352,7 +1357,7 @@ val = dict[ tuple[trace_pos_inside_log, trace_name] : CheckerResult ]</dd>
 <h3>Methods</h3>
 <dl>
 <dt id="declare4py.declare4py.Declare4Py.activities_log_projection"><code class="name flex">
-<span>def <span class="ident">activities_log_projection</span></span>(<span>self) ‑> list</span>
+<span>def <span class="ident">activities_log_projection</span></span>(<span>self) ‑> list[list[str]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return for each trace a time-ordered list of the activity names of the events.</p>
@@ -1443,7 +1448,7 @@ and over the given dimension.</p>
 </details>
 </dd>
 <dt id="declare4py.declare4py.Declare4Py.conformance_checking"><code class="name flex">
-<span>def <span class="ident">conformance_checking</span></span>(<span>self, consider_vacuity: bool) ‑> dict</span>
+<span>def <span class="ident">conformance_checking</span></span>(<span>self, consider_vacuity: bool) ‑> dict[slice(tuple[int, str], dict[slice(<class 'str'>, <class '<a title="declare4py.models.checker_result.CheckerResult" href="models/checker_result.html#declare4py.models.checker_result.CheckerResult">CheckerResult</a>'>, None)], None)]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Performs conformance checking for the provided event log and DECLARE model.</p>
@@ -1496,7 +1501,7 @@ constraint.</dd>
 </details>
 </dd>
 <dt id="declare4py.declare4py.Declare4Py.discovery"><code class="name flex">
-<span>def <span class="ident">discovery</span></span>(<span>self, consider_vacuity: bool, max_declare_cardinality: int = 3, output_path: str = None) ‑> dict</span>
+<span>def <span class="ident">discovery</span></span>(<span>self, consider_vacuity: bool, max_declare_cardinality: int = 3, output_path: str = None) ‑> dict[slice(<class 'str'>, dict[slice(tuple[int, str], <class '<a title="declare4py.models.checker_result.CheckerResult" href="models/checker_result.html#declare4py.models.checker_result.CheckerResult">CheckerResult</a>'>, None)], None)]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Performs discovery of the supported DECLARE templates for the provided log by using the computed frequent item
@@ -1586,7 +1591,7 @@ is a CheckerResult object containing the number of pendings, activations, violat
 </details>
 </dd>
 <dt id="declare4py.declare4py.Declare4Py.filter_discovery"><code class="name flex">
-<span>def <span class="ident">filter_discovery</span></span>(<span>self, min_support: float = 0, output_path: str = None) ‑> dict</span>
+<span>def <span class="ident">filter_discovery</span></span>(<span>self, min_support: float = 0, output_path: str = None) ‑> dict[slice(<class 'str'>, dict[slice(tuple[int, str], <class '<a title="declare4py.models.checker_result.CheckerResult" href="models/checker_result.html#declare4py.models.checker_result.CheckerResult">CheckerResult</a>'>, None)], None)]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Filters discovery results by means of minimum support.</p>
@@ -1651,14 +1656,15 @@ is a CheckerResult object containing the number of pendings, activations, violat
 </details>
 </dd>
 <dt id="declare4py.declare4py.Declare4Py.filter_query_checking"><code class="name flex">
-<span>def <span class="ident">filter_query_checking</span></span>(<span>self, queries) ‑> list</span>
+<span>def <span class="ident">filter_query_checking</span></span>(<span>self, queries) ‑> list[list[str]]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Filter query checking.</p>
+<div class="desc"><p>The function outputs, for each constraint of the query checking result, only the elements of the constraint
+specified in the 'queries' list.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>queries</code></strong> :&ensp;<code>list[str]</code></dt>
-<dd>elements of the constraint that the user want to filter out from query checking result. Choose one (or more)
+<dd>elements of the constraint that the user want to retain from query checking result. Choose one (or more)
 elements among: 'template', 'activation', 'target'.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
@@ -1673,12 +1679,13 @@ itself, containing the queried constraint elements.</dd>
 </summary>
 <pre><code class="python">def filter_query_checking(self, queries) -&gt; list[list[str]]:
     &#34;&#34;&#34;
-    Filter query checking.
+    The function outputs, for each constraint of the query checking result, only the elements of the constraint
+    specified in the &#39;queries&#39; list.
 
     Parameters
     ----------
     queries : list[str]
-        elements of the constraint that the user want to filter out from query checking result. Choose one (or more)
+        elements of the constraint that the user want to retain from query checking result. Choose one (or more)
         elements among: &#39;template&#39;, &#39;activation&#39;, &#39;target&#39;.
 
     Returns
@@ -1827,7 +1834,7 @@ itself, containing the queried constraint elements.</dd>
 </details>
 </dd>
 <dt id="declare4py.declare4py.Declare4Py.get_log_alphabet_payload"><code class="name flex">
-<span>def <span class="ident">get_log_alphabet_payload</span></span>(<span>self) ‑> set</span>
+<span>def <span class="ident">get_log_alphabet_payload</span></span>(<span>self) ‑> set[str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the set of resources that are in the log.</p>
@@ -1887,7 +1894,7 @@ itself, containing the queried constraint elements.</dd>
 </details>
 </dd>
 <dt id="declare4py.declare4py.Declare4Py.get_model_activities"><code class="name flex">
-<span>def <span class="ident">get_model_activities</span></span>(<span>self) ‑> list</span>
+<span>def <span class="ident">get_model_activities</span></span>(<span>self) ‑> list[str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the activities contained in the DECLARE model.</p>
@@ -1916,7 +1923,7 @@ itself, containing the queried constraint elements.</dd>
 </details>
 </dd>
 <dt id="declare4py.declare4py.Declare4Py.get_model_constraints"><code class="name flex">
-<span>def <span class="ident">get_model_constraints</span></span>(<span>self) ‑> list</span>
+<span>def <span class="ident">get_model_constraints</span></span>(<span>self) ‑> list[str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the constraints contained in the DECLARE model.</p>
@@ -1945,7 +1952,7 @@ itself, containing the queried constraint elements.</dd>
 </details>
 </dd>
 <dt id="declare4py.declare4py.Declare4Py.get_supported_templates"><code class="name flex">
-<span>def <span class="ident">get_supported_templates</span></span>(<span>self) ‑> tuple</span>
+<span>def <span class="ident">get_supported_templates</span></span>(<span>self) ‑> tuple[str, ...]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the DECLARE templates supported by Declare4Py.</p>
@@ -1971,7 +1978,7 @@ itself, containing the queried constraint elements.</dd>
 </details>
 </dd>
 <dt id="declare4py.declare4py.Declare4Py.get_trace_keys"><code class="name flex">
-<span>def <span class="ident">get_trace_keys</span></span>(<span>self) ‑> list</span>
+<span>def <span class="ident">get_trace_keys</span></span>(<span>self) ‑> list[tuple[int, str]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the name of each trace, along with the position in the log.</p>
@@ -2126,7 +2133,7 @@ given log file path.</p>
 </details>
 </dd>
 <dt id="declare4py.declare4py.Declare4Py.query_checking"><code class="name flex">
-<span>def <span class="ident">query_checking</span></span>(<span>self, consider_vacuity: bool, template_str: str = None, max_declare_cardinality: int = 1, activation: str = None, target: str = None, act_cond: str = None, trg_cond: str = None, time_cond: str = None, min_support: float = 1.0, return_first: bool = False) ‑> dict</span>
+<span>def <span class="ident">query_checking</span></span>(<span>self, consider_vacuity: bool, template_str: str = None, max_declare_cardinality: int = 1, activation: str = None, target: str = None, act_cond: str = None, trg_cond: str = None, time_cond: str = None, min_support: float = 1.0, return_first: bool = False) ‑> dict[slice(<class 'str'>, dict[slice(<class 'str'>, <class 'str'>, None)], None)]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Performs query checking for a (list of) template, activation activity and target activity. Optional
@@ -2307,7 +2314,7 @@ representations of these constraints.</dd>
 </details>
 </dd>
 <dt id="declare4py.declare4py.Declare4Py.resources_log_projection"><code class="name flex">
-<span>def <span class="ident">resources_log_projection</span></span>(<span>self) ‑> list</span>
+<span>def <span class="ident">resources_log_projection</span></span>(<span>self) ‑> list[list[str]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return for each trace a time-ordered list of the resources of the events.</p>
