@@ -10,8 +10,9 @@ from itertools import product
 
 class Declare4Py:
     """
-    Wrapper that collects the input log and model, the output for the discovery, conformance checking and query
-    checking tasks. In addition,
+    Wrapper that collects the input log and model, the supported templates, the output for the discovery, conformance
+    checking and query checking tasks. In addition, it contains the computed binary encoding and frequent item sets
+    for the input log.
 
     Attributes
     ----------
