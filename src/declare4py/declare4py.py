@@ -601,12 +601,13 @@ class Declare4Py:
 
     def filter_query_checking(self, queries) -> list[list[str]]:
         """
-        Filter query checking.
+        The function outputs, for each constraint of the query checking result, only the elements of the constraint
+        specified in the 'queries' list.
 
         Parameters
         ----------
         queries : list[str]
-            elements of the constraint that the user want to filter out from query checking result. Choose one (or more)
+            elements of the constraint that the user want to retain from query checking result. Choose one (or more)
             elements among: 'template', 'activation', 'target'.
 
         Returns
