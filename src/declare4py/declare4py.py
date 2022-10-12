@@ -6,8 +6,6 @@ import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import fpgrowth, apriori
 from itertools import product
-from numba import njit
-
 
 class Declare4Py:
     """
@@ -42,7 +40,6 @@ class Declare4Py:
         key = constraint_string
         val = dict[ tuple[trace_pos_inside_log, trace_name] : CheckerResult ]
     """
-    @njit
     def __init__(self):
         self.log = None
         self.model = None
@@ -55,7 +52,6 @@ class Declare4Py:
         self.discovery_results = None
 
     # LOG MANAGEMENT UTILITIES
-    @njit
     def parse_xes_log(self, log_path: str) -> None:
         """
         Set the 'log' EventLog object and the 'log_length' integer by reading and parsing the log corresponding to
@@ -69,7 +65,6 @@ class Declare4Py:
         self.log = pm4py.read_xes(log_path)
         self.log_length = len(self.log)
 
-    @njit
     def activities_log_projection(self) -> list[list[str]]:
         """
         Return for each trace a time-ordered list of the activity names of the events.
@@ -89,7 +84,6 @@ class Declare4Py:
             projection.append(tmp_trace)
         return projection
 
-    @njit
     def resources_log_projection(self) -> list[list[str]]:
         """
         Return for each trace a time-ordered list of the resources of the events.
@@ -109,7 +103,6 @@ class Declare4Py:
             projection.append(tmp_trace)
         return projection
 
-    @njit
     def log_encoding(self, dimension: str = 'act') -> pd.DataFrame:
         """
         Return the log binary encoding, i.e. the one-hot encoding stating whether an attribute is contained
@@ -138,7 +131,6 @@ class Declare4Py:
         self.binary_encoded_log = pd.DataFrame(te_ary, columns=te.columns_)
         return self.binary_encoded_log
 
-    @njit
     def compute_frequent_itemsets(self, min_support: float, dimension: str = 'act', algorithm: str = 'fpgrowth',
                                   len_itemset: int = None) -> None:
         """
@@ -174,7 +166,6 @@ class Declare4Py:
         else:
             self.frequent_item_sets = frequent_itemsets[(frequent_itemsets['length'] <= len_itemset)]
 
-    @njit
     def get_trace_keys(self) -> list[tuple[int, str]]:
         """
         Return the name of each trace, along with the position in the log.
@@ -191,7 +182,6 @@ class Declare4Py:
             trace_ids.append((trace_id, trace.attributes["concept:name"]))
         return trace_ids
 
-    @njit
     def get_log_length(self) -> int:
         """
         Return the number of traces contained in the log.
@@ -205,7 +195,6 @@ class Declare4Py:
             raise RuntimeError("You must load a log before.")
         return self.log_length
 
-    @njit
     def get_log(self) -> pm4py.objects.log.obj.EventLog:
         """
         Return the log previously fed in input.
@@ -219,7 +208,6 @@ class Declare4Py:
             raise RuntimeError("You must load a log before.")
         return self.log
 
-    @njit
     def get_log_alphabet_payload(self) -> set[str]:
         """
         Return the set of resources that are in the log.
@@ -237,7 +225,6 @@ class Declare4Py:
                 resources.add(event["org:group"])
         return resources
 
-    @njit
     def get_log_alphabet_activities(self):
         """
         Return the set of activities that are in the log.
@@ -255,7 +242,6 @@ class Declare4Py:
                 activities.add(event["concept:name"])
         return list(activities)
 
-    @njit
     def get_frequent_item_sets(self) -> pd.DataFrame:
         """
         Return the set of extracted frequent item sets.
@@ -272,7 +258,6 @@ class Declare4Py:
 
         return self.frequent_item_sets
 
-    @njit
     def get_binary_encoded_log(self) -> pd.DataFrame:
         """
         Return the one-hot encoding of the log.
@@ -290,7 +275,6 @@ class Declare4Py:
         return self.binary_encoded_log
 
     # DECLARE UTILITIES
-    @njit
     def parse_decl_model(self, model_path) -> None:
         """
         Parse the input DECLARE model.
@@ -302,7 +286,6 @@ class Declare4Py:
         """
         self.model = parse_decl_from_file(model_path)
 
-    @njit
     def get_supported_templates(self) -> tuple[str, ...]:
         """
         Return the DECLARE templates supported by Declare4Py.
@@ -314,7 +297,6 @@ class Declare4Py:
         """
         return self.supported_templates
 
-    @njit
     def get_model_activities(self) -> list[str]:
         """
         Return the activities contained in the DECLARE model.
@@ -329,7 +311,6 @@ class Declare4Py:
 
         return self.model.activities
 
-    @njit
     def get_model_constraints(self) -> list[str]:
         """
         Return the constraints contained in the DECLARE model.
@@ -345,7 +326,6 @@ class Declare4Py:
         return self.model.get_decl_model_constraints()
 
     # PROCESS MINING TASKS
-    @njit
     def conformance_checking(self, consider_vacuity: bool) -> dict[tuple[int, str]: dict[str: CheckerResult]]:
         """
         Performs conformance checking for the provided event log and DECLARE model.
@@ -376,7 +356,6 @@ class Declare4Py:
 
         return self.conformance_checking_results
 
-    @njit
     def discovery(self, consider_vacuity: bool, max_declare_cardinality: int = 3, output_path: str = None) \
             -> dict[str: dict[tuple[int, str]: CheckerResult]]:
         """
@@ -440,7 +419,6 @@ class Declare4Py:
 
         return self.discovery_results
 
-    @njit
     def filter_discovery(self, min_support: float = 0, output_path: str = None) \
             -> dict[str: dict[tuple[int, str]: CheckerResult]]:
         """
@@ -482,7 +460,6 @@ class Declare4Py:
 
         return result
 
-    @njit
     def query_checking(self, consider_vacuity: bool,
                        template_str: str = None, max_declare_cardinality: int = 1,
                        activation: str = None, target: str = None,
@@ -620,7 +597,6 @@ class Declare4Py:
 
         return self.query_checking_results
 
-    @njit
     def filter_query_checking(self, queries) -> list[list[str]]:
         """
         The function outputs, for each constraint of the query checking result, only the elements of the constraint
@@ -655,7 +631,6 @@ class Declare4Py:
         return assignments
 
     # FUNCTIONS FOR PRINTING RESULTS ##############
-    @njit
     def print_conformance_results(self):
         if self.conformance_checking_results is None:
             raise RuntimeError("You must run conformance checking before!")

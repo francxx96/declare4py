@@ -2,7 +2,6 @@ from ..enums import TraceState
 from ..models import CheckerResult
 from ..parsers import parse_data_cond, parse_time_cond
 from datetime import timedelta
-from numba import njit
 
 # Defining global and local functions/variables to use within eval() to prevent code injection
 glob = {'__builtins__': None}
@@ -14,7 +13,6 @@ glob = {'__builtins__': None}
 # respondedExistence(a, b) indicates that, if event a occurs in the trace
 # then event b occurs in the trace as well.
 # Event a activates the constraint.
-@njit
 def mp_responded_existence(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
@@ -74,7 +72,6 @@ def mp_responded_existence(trace, done, a, b, rules):
 # The future constraining constraint response(a, b) indicates that
 # if event a occurs in the trace, then event b occurs after a.
 # Event a activates the constraint.
-@njit
 def mp_response(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
@@ -131,7 +128,6 @@ def mp_response(trace, done, a, b, rules):
 # each time event a occurs in the trace then event b occurs afterwards
 # before event a recurs.
 # Event a activates the constraint.
-@njit
 def mp_alternate_response(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
@@ -185,7 +181,6 @@ def mp_alternate_response(trace, done, a, b, rules):
 # The future constraining constraint chain_response(a, b) indicates that,
 # each time event a occurs in the trace, event b occurs immediately afterwards.
 # Event a activates the constraint.
-@njit
 def mp_chain_response(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
@@ -238,7 +233,6 @@ def mp_chain_response(trace, done, a, b, rules):
 # Description:
 # The history-based constraint precedence(a,b) indicates that event b occurs
 # only in the trace, if preceded by a. Event b activates the constraint.
-@njit
 def mp_precedence(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
@@ -290,7 +284,6 @@ def mp_precedence(trace, done, a, b, rules):
 # each time event b occurs in the trace
 # it is preceded by event a and no other event b can recur in between.
 # Event b activates the constraint.
-@njit
 def mp_alternate_precedence(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
@@ -340,7 +333,6 @@ def mp_alternate_precedence(trace, done, a, b, rules):
 # The history-based constraint chain_precedence(a, b) indicates that,
 # each time event b occurs in the trace, event a occurs immediately beforehand.
 # Event b activates the constraint.
-@njit
 def mp_chain_precedence(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])

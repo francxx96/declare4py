@@ -2,7 +2,6 @@ from ..enums import TraceState
 from ..models import CheckerResult
 from ..parsers import parse_data_cond, parse_time_cond
 from datetime import timedelta
-from numba import njit
 
 # Defining global and local functions/variables to use within eval() to prevent code injection
 glob = {'__builtins__': None}
@@ -10,7 +9,6 @@ glob = {'__builtins__': None}
 
 # mp-not-responded-existence constraint checker
 # Description:
-@njit
 def mp_not_responded_existence(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
@@ -65,7 +63,6 @@ def mp_not_responded_existence(trace, done, a, b, rules):
 
 # mp-not-response constraint checker
 # Description:
-@njit
 def mp_not_response(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
@@ -116,7 +113,6 @@ def mp_not_response(trace, done, a, b, rules):
 
 # mp-not-chain-response constraint checker
 # Description:
-@njit
 def mp_not_chain_response(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
@@ -165,7 +161,6 @@ def mp_not_chain_response(trace, done, a, b, rules):
 
 # mp-not-precedence constraint checker
 # Description:
-@njit
 def mp_not_precedence(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])
@@ -213,7 +208,6 @@ def mp_not_precedence(trace, done, a, b, rules):
 
 # mp-not-chain-precedence constraint checker
 # Description:
-@njit
 def mp_not_chain_precedence(trace, done, a, b, rules):
     activation_rules = parse_data_cond(rules["activation"])
     correlation_rules = parse_data_cond(rules["correlation"])

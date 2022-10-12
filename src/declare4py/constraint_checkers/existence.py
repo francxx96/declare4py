@@ -2,7 +2,6 @@ from ..enums import *
 from ..models import CheckerResult
 from ..parsers import parse_data_cond, parse_time_cond
 from datetime import timedelta
-from numba import njit
 
 # Defining global and local functions/variables to use within eval() to prevent code injection
 glob = {'__builtins__': None}
@@ -12,7 +11,6 @@ glob = {'__builtins__': None}
 # Description:
 # The future constraining constraint existence(n, a) indicates that
 # event a must occur at least n-times in the trace.
-@njit
 def mp_existence(trace, done, a, rules):
     activation_rules = parse_data_cond(rules["activation"])
     time_rule = parse_time_cond(rules["time"])
@@ -41,7 +39,6 @@ def mp_existence(trace, done, a, rules):
 # Description:
 # The future constraining constraint absence(n + 1, a) indicates that
 # event a may occur at most n − times in the trace.
-@njit
 def mp_absence(trace, done, a, rules):
     activation_rules = parse_data_cond(rules["activation"])
     time_rule = parse_time_cond(rules["time"])
@@ -70,7 +67,6 @@ def mp_absence(trace, done, a, rules):
 # Description:
 # The future constraining constraint init(e) indicates that
 # event e is the first event that occurs in the trace.
-@njit
 def mp_init(trace, done, a, rules):
     activation_rules = parse_data_cond(rules["activation"])
 
@@ -86,7 +82,6 @@ def mp_init(trace, done, a, rules):
 
 # mp-exactly constraint checker
 # Description:
-@njit
 def mp_exactly(trace, done, a, rules):
     activation_rules = parse_data_cond(rules["activation"])
     time_rule = parse_time_cond(rules["time"])

@@ -2,9 +2,7 @@ from math import ceil
 
 from .constraint_checkers import *
 from .models import DeclModel
-from numba import njit
 
-@njit
 def check_trace_conformance(trace, model, consider_vacuity):
     rules = {"vacuous_satisfaction": consider_vacuity}
 
@@ -115,7 +113,6 @@ def check_trace_conformance(trace, model, consider_vacuity):
 
     return trace_results
 
-@njit
 def discover_constraint(log, constraint, consider_vacuity):
     # Fake model composed by a single constraint
     model = DeclModel()
@@ -138,7 +135,6 @@ def discover_constraint(log, constraint, consider_vacuity):
 
     return discovery_res
 
-@njit
 def query_constraint(log, constraint, consider_vacuity, min_support):
     # Fake model composed by a single constraint
     model = DeclModel()
