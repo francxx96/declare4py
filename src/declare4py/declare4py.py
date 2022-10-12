@@ -43,15 +43,33 @@ class Declare4Py:
     def __init__(self):
         self.log = None
         self.model = None
-        self.log_length = None
+        self.log_length = None # exported to log utils
         self.supported_templates = tuple(map(lambda c: c.templ_str, Template))
-        self.binary_encoded_log = None
-        self.frequent_item_sets = None
+        self.binary_encoded_log = None # exported to log utils
+        self.frequent_item_sets = None # exported to log utils
         self.conformance_checking_results = None
         self.query_checking_results = None
         self.discovery_results = None
 
     # LOG MANAGEMENT UTILITIES
+    # exported to log utils
+    def get_binary_encoded_log(self) -> pd.DataFrame:
+        """
+        Return the one-hot encoding of the log.
+
+        Returns
+        -------
+        binary_encoded_log
+            the one-hot encoded log.
+        """
+        if self.log is None:
+            raise RuntimeError("You must load a log before.")
+        if self.frequent_item_sets is None:
+            raise RuntimeError("You must run the item set extraction algorithm before.")
+
+        return self.binary_encoded_log
+
+    # exported to log utils
     def parse_xes_log(self, log_path: str) -> None:
         """
         Set the 'log' EventLog object and the 'log_length' integer by reading and parsing the log corresponding to
@@ -65,6 +83,7 @@ class Declare4Py:
         self.log = pm4py.read_xes(log_path)
         self.log_length = len(self.log)
 
+    # exported to log utils
     def activities_log_projection(self) -> list[list[str]]:
         """
         Return for each trace a time-ordered list of the activity names of the events.
@@ -84,6 +103,7 @@ class Declare4Py:
             projection.append(tmp_trace)
         return projection
 
+    # exported to log utils
     def resources_log_projection(self) -> list[list[str]]:
         """
         Return for each trace a time-ordered list of the resources of the events.
@@ -103,6 +123,7 @@ class Declare4Py:
             projection.append(tmp_trace)
         return projection
 
+    # exported to log utils
     def log_encoding(self, dimension: str = 'act') -> pd.DataFrame:
         """
         Return the log binary encoding, i.e. the one-hot encoding stating whether an attribute is contained
@@ -131,6 +152,7 @@ class Declare4Py:
         self.binary_encoded_log = pd.DataFrame(te_ary, columns=te.columns_)
         return self.binary_encoded_log
 
+    # exported to log utils
     def compute_frequent_itemsets(self, min_support: float, dimension: str = 'act', algorithm: str = 'fpgrowth',
                                   len_itemset: int = None) -> None:
         """
@@ -182,6 +204,7 @@ class Declare4Py:
             trace_ids.append((trace_id, trace.attributes["concept:name"]))
         return trace_ids
 
+    # exported to log utils
     def get_log_length(self) -> int:
         """
         Return the number of traces contained in the log.
@@ -195,6 +218,7 @@ class Declare4Py:
             raise RuntimeError("You must load a log before.")
         return self.log_length
 
+    # exported to log utils
     def get_log(self) -> pm4py.objects.log.obj.EventLog:
         """
         Return the log previously fed in input.
@@ -208,6 +232,7 @@ class Declare4Py:
             raise RuntimeError("You must load a log before.")
         return self.log
 
+    # exported to log utils
     def get_log_alphabet_payload(self) -> set[str]:
         """
         Return the set of resources that are in the log.
@@ -225,6 +250,7 @@ class Declare4Py:
                 resources.add(event["org:group"])
         return resources
 
+    # exported to log utils
     def get_log_alphabet_activities(self):
         """
         Return the set of activities that are in the log.
@@ -242,6 +268,7 @@ class Declare4Py:
                 activities.add(event["concept:name"])
         return list(activities)
 
+    # exported to log utils
     def get_frequent_item_sets(self) -> pd.DataFrame:
         """
         Return the set of extracted frequent item sets.
@@ -258,6 +285,7 @@ class Declare4Py:
 
         return self.frequent_item_sets
 
+    # exported to log utils
     def get_binary_encoded_log(self) -> pd.DataFrame:
         """
         Return the one-hot encoding of the log.
