@@ -1,5 +1,5 @@
-from ..enums import Template
-from ..models import DeclModel
+from src.declare4py.enums import Template
+from src.declare4py.models import DeclModel
 import re
 
 
