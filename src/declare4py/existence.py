@@ -1,6 +1,6 @@
-from ..enums import *
-from ..models import CheckerResult
-from ..parsers import parse_data_cond, parse_time_cond
+from declare4py.src.declare4py.mp_constants import *
+from declare4py.src.declare4py.checker_result import CheckerResult
+from declare4py.src.declare4py.log_utils.encoder_declare import parse_data_cond, parse_time_cond
 from datetime import timedelta
 
 # Defining global and local functions/variables to use within eval() to prevent code injection

@@ -1,7 +1,12 @@
 import pandas as pd
 
+from declare4py.src.declare4py.log_utils.log_generator import LogGenerator
 
-class LogGenerator:
+
+class AspGenerator:
+
+    def __init__(self):
+        LogGenerator.__init__(self)
 
     def get_log_length(self) -> int:
         """

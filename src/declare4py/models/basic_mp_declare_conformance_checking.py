@@ -1,9 +1,19 @@
-from src.declare4py.old_structure.api_functions import check_trace_conformance
-from src.declare4py.old_structure.checker_result import CheckerResult
+from abc import ABC
 
-class ConformanceChecking:
+from declare4py.src.declare4py.api_functions import check_trace_conformance
+from declare4py.src.declare4py.checker_result import CheckerResult
+from declare4py.src.declare4py.core.conf_checking import ConformanceChecking
 
-    def conformance_checking(self, consider_vacuity: bool) -> dict[tuple[int, str]: dict[str: CheckerResult]]:
+from src.declare4py.models.conformance_checking_results import ConformanceCheckingResults
+
+
+class BasicMPDeclareConformanceChecking(ConformanceChecking, ABC):
+
+    def __init__(self):
+        self.conformance_checking_results = None
+        ConformanceChecking.__init__(self)
+
+    def conformance_checking(self, consider_vacuity: bool) -> ConformanceCheckingResults:
         """
         Performs conformance checking for the provided event log and DECLARE model.
 
@@ -26,7 +36,7 @@ class ConformanceChecking:
         if self.model is None:
             raise RuntimeError("You must load the DECLARE model before checking the model.")
 
-        self.conformance_checking_results = {}
+        self.conformance_checking_results = ConformanceCheckingResults({})
         for i, trace in enumerate(self.log):
             trc_res = check_trace_conformance(trace, self.model, consider_vacuity)
             self.conformance_checking_results[(i, trace.attributes["concept:name"])] = trc_res

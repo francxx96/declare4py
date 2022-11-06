@@ -127,9 +127,10 @@ class LogAnalyzer:
         frequent_itemsets['length'] = frequent_itemsets['itemsets'].apply(lambda x: len(x))
         if len_itemset is None:
             self.frequent_item_sets = frequent_itemsets
+        if len_itemset < 1:
+            raise RuntimeError(f"The parameter len_itemset must be greater than 0.")
         else:
             self.frequent_item_sets = frequent_itemsets[(frequent_itemsets['length'] <= len_itemset)]
-
 
     def get_log(self) -> pm4py.objects.log.obj.EventLog:
         """
@@ -143,7 +144,6 @@ class LogAnalyzer:
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         return self.log
-
 
     def get_log_alphabet_payload(self) -> set[str]:
         """
@@ -162,7 +162,6 @@ class LogAnalyzer:
                 resources.add(event["org:group"])
         return resources
 
-
     def get_log_alphabet_activities(self):
         """
         Return the set of activities that are in the log.
@@ -179,7 +178,6 @@ class LogAnalyzer:
             for event in trace:
                 activities.add(event["concept:name"])
         return list(activities)
-
 
     def log_encoding(self, dimension: str = 'act') -> pd.DataFrame:
         """

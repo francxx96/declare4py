@@ -1,7 +1,11 @@
 from math import ceil
 
-from .constraint_checkers import *
-from .models import DeclModel
+from .mp_constants import Template
+from src.declare4py.existence import *
+from src.declare4py.choice import *
+from .old_structure.negative_relation import *
+from .old_structure.relation import *
+
 
 def check_trace_conformance(trace, model, consider_vacuity):
     rules = {"vacuous_satisfaction": consider_vacuity}
@@ -113,47 +117,3 @@ def check_trace_conformance(trace, model, consider_vacuity):
 
     return trace_results
 
-def discover_constraint(log, constraint, consider_vacuity):
-    # Fake model composed by a single constraint
-    model = DeclModel()
-    model.checkers.append(constraint)
-
-    discovery_res = {}
-
-    for i, trace in enumerate(log):
-        trc_res = check_trace_conformance(trace, model, consider_vacuity)
-        if not trc_res:     # Occurring when constraint data conditions are formatted bad
-            break
-
-        constraint_str, checker_res = next(iter(trc_res.items()))  # trc_res will always have only one element inside
-        if checker_res.state == TraceState.SATISFIED:
-            new_val = {(i, trace.attributes['concept:name']): checker_res}
-            if constraint_str in discovery_res:
-                discovery_res[constraint_str] |= new_val
-            else:
-                discovery_res[constraint_str] = new_val
-
-    return discovery_res
-
-def query_constraint(log, constraint, consider_vacuity, min_support):
-    # Fake model composed by a single constraint
-    model = DeclModel()
-    model.checkers.append(constraint)
-
-    sat_ctr = 0
-    for i, trace in enumerate(log):
-        trc_res = check_trace_conformance(trace, model, consider_vacuity)
-        if not trc_res:     # Occurring when constraint data conditions are formatted bad
-            break
-
-        constraint_str, checker_res = next(iter(trc_res.items()))  # trc_res will always have only one element inside
-        if checker_res.state == TraceState.SATISFIED:
-            sat_ctr += 1
-            # If the constraint is already above the minimum support, return it directly
-            if sat_ctr / len(log) >= min_support:
-                return constraint_str
-        # If there aren't enough more traces to reach the minimum support, return nothing
-        if len(log) - (i+1) < ceil(len(log) * min_support) - sat_ctr:
-            return None
-
-    return None

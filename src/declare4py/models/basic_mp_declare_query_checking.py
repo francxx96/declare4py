@@ -1,12 +1,20 @@
 import re
 import sys
+from abc import ABC
 
-from numpy import product
+from numpy import product, ceil
 
-from src.declare4py.old_structure.api_functions import query_constraint
-from src.declare4py.old_structure.mp_constants import Template
+from declare4py.src.declare4py.api_functions import check_trace_conformance
+from declare4py.src.declare4py.log_utils.decl_model import DeclModel
+from declare4py.src.declare4py.mp_constants import Template, TraceState
+from declare4py.src.declare4py.core.query_checking import QueryChecking
 
-class QueryChecking:
+
+class BasicMPDeclareQueryChecking(QueryChecking, ABC):
+
+    def __init__(self):
+        QueryChecking.__init__(self)
+        self.query_checking_results = None
 
     def query_checking(self, consider_vacuity: bool,
                        template_str: str = None, max_declare_cardinality: int = 1,
@@ -121,8 +129,6 @@ class QueryChecking:
                             "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond
                         }
                         self.query_checking_results[constraint_str] = res_value
-                        if return_first:
-                            return self.query_checking_results
 
             else:  # unary template
                 constraint['condition'] = (act_cond, time_cond)
@@ -136,8 +142,6 @@ class QueryChecking:
                             "act_cond": act_cond, "time_cond": time_cond
                         }
                         self.query_checking_results[constraint_str] = res_value
-                        if return_first:
-                            return self.query_checking_results
 
         return self.query_checking_results
 
@@ -173,3 +177,27 @@ class QueryChecking:
                     sys.exit(1)
             assignments.append(tmp_answer)
         return assignments
+
+    def query_constraint(log, constraint, consider_vacuity, min_support):
+        # Fake model composed by a single constraint
+        model = DeclModel()
+        model.checkers.append(constraint)
+
+        sat_ctr = 0
+        for i, trace in enumerate(log):
+            trc_res = check_trace_conformance(trace, model, consider_vacuity)
+            if not trc_res:  # Occurring when constraint data conditions are formatted bad
+                break
+
+            constraint_str, checker_res = next(
+                iter(trc_res.items()))  # trc_res will always have only one element inside
+            if checker_res.state == TraceState.SATISFIED:
+                sat_ctr += 1
+                # If the constraint is already above the minimum support, return it directly
+                if sat_ctr / len(log) >= min_support:
+                    return constraint_str
+            # If there aren't enough more traces to reach the minimum support, return nothing
+            if len(log) - (i + 1) < ceil(len(log) * min_support) - sat_ctr:
+                return None
+
+        return None

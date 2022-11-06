@@ -1,9 +1,14 @@
-from src.declare4py.old_structure.api_functions import discover_constraint
-from src.declare4py.old_structure.checker_result import CheckerResult
-from src.declare4py.old_structure.mp_constants import Template
+from declare4py.src.declare4py.api_functions import check_trace_conformance
+from declare4py.src.declare4py.checker_result import CheckerResult
+from declare4py.src.declare4py.log_utils.decl_model import DeclModel
+from declare4py.src.declare4py.core.discovery import Discovery
+from declare4py.src.declare4py.mp_constants import Template, TraceState
 
 
-class Discovery:
+class BasicDeclareDiscovery:
+
+    def __init__(self):
+        Discovery.__init__(self)
 
     def discovery(self, consider_vacuity: bool, max_declare_cardinality: int = 3, output_path: str = None) \
             -> dict[str: dict[tuple[int, str]: CheckerResult]]:
@@ -37,7 +42,7 @@ class Discovery:
         if max_declare_cardinality <= 0:
             raise RuntimeError("Cardinality must be greater than 0.")
 
-        self.discovery_results = {}
+        Discovery.discovery_results = {}
 
         for item_set in self.frequent_item_sets['itemsets']:
             length = len(item_set)
@@ -46,19 +51,19 @@ class Discovery:
                 for templ in Template.get_unary_templates():
                     constraint = {"template": templ, "attributes": ', '.join(item_set), "condition": ("", "")}
                     if not templ.supports_cardinality:
-                        self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
+                        self.discovery_results |= self.discover_constraint(self.log, constraint, consider_vacuity)
                     else:
                         for i in range(max_declare_cardinality):
                             constraint['n'] = i + 1
-                            self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
+                            self.discovery_results |= self.discover_constraint(self.log, constraint, consider_vacuity)
 
             elif length == 2:
                 for templ in Template.get_binary_templates():
                     constraint = {"template": templ, "attributes": ', '.join(item_set), "condition": ("", "", "")}
-                    self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
+                    self.discovery_results |= self.discover_constraint(self.log, constraint, consider_vacuity)
 
                     constraint['attributes'] = ', '.join(reversed(list(item_set)))
-                    self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
+                    self.discovery_results |= self.discover_constraint(self.log, constraint, consider_vacuity)
 
         activities_decl_format = "activity " + "\nactivity ".join(self.get_log_alphabet_activities()) + "\n"
         if output_path is not None:
@@ -67,7 +72,6 @@ class Discovery:
                 f.write('\n'.join(self.discovery_results.keys()))
 
         return self.discovery_results
-
 
     def filter_discovery(self, min_support: float = 0, output_path: str = None) \
             -> dict[str: dict[tuple[int, str]: CheckerResult]]:
@@ -109,3 +113,26 @@ class Discovery:
                 f.write('\n'.join(result.keys()))
 
         return result
+
+    def discover_constraint(log: str, constraint: str, consider_vacuity: bool):
+        # Fake model composed by a single constraint
+        model = DeclModel()
+        model.checkers.append(constraint)
+
+        discovery_res = {}
+
+        for i, trace in enumerate(log):
+            trc_res = check_trace_conformance(trace, model, consider_vacuity)
+            if not trc_res:  # Occurring when constraint data conditions are formatted bad
+                break
+
+            constraint_str, checker_res = next(
+                iter(trc_res.items()))  # trc_res will always have only one element inside
+            if checker_res.state == TraceState.SATISFIED:
+                new_val = {(i, trace.attributes['concept:name']): checker_res}
+                if constraint_str in discovery_res:
+                    discovery_res[constraint_str] |= new_val
+                else:
+                    discovery_res[constraint_str] = new_val
+
+        return discovery_res
