@@ -155,7 +155,8 @@ def parse_decl(lines):
             template = Template.get_template_from_string(template_str)
 
             if template is not None:
-                attributes = split[1].split("]")[0]
+                attributes = split[1].split("]")[0].split(",")
+                attributes = [act.strip() for act in attributes]
                 tmp = {
                     "template": template,
                     "attributes": attributes,

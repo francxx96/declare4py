@@ -1,3 +1,4 @@
+from __future__ import annotations
 from .parsers import *
 from .api_functions import *
 import sys
@@ -8,10 +9,11 @@ from mlxtend.frequent_patterns import fpgrowth, apriori
 from itertools import product
 
 
+
 class Declare4Py:
     """
     Wrapper that collects the input log and model, the supported templates, the output for the discovery, conformance
-    checking and query checking tasks. In addition, it contains the computed binary encoding and frequent item sets
+    checking and query checking tasks. In addition, it contains the computed binary encoding and frequent items
     for the input log.
 
     Attributes
@@ -397,7 +399,7 @@ class Declare4Py:
 
             if length == 1:
                 for templ in Template.get_unary_templates():
-                    constraint = {"template": templ, "attributes": ', '.join(item_set), "condition": ("", "")}
+                    constraint = {"template": templ, "attributes": item_set, "condition": ("", "")}
                     if not templ.supports_cardinality:
                         self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
                     else:
@@ -407,10 +409,10 @@ class Declare4Py:
 
             elif length == 2:
                 for templ in Template.get_binary_templates():
-                    constraint = {"template": templ, "attributes": ', '.join(item_set), "condition": ("", "", "")}
+                    constraint = {"template": templ, "attributes": item_set, "condition": ("", "", "")}
                     self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
 
-                    constraint['attributes'] = ', '.join(reversed(list(item_set)))
+                    constraint['attributes'] = reversed(list(item_set))
                     self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
 
         activities_decl_format = "activity " + "\nactivity ".join(self.get_log_alphabet_activities()) + "\n"
@@ -570,7 +572,7 @@ class Declare4Py:
             if template.is_binary:
                 constraint['condition'] = (act_cond, trg_cond, time_cond)
                 for couple in activity_combos:
-                    constraint['attributes'] = ', '.join(couple)
+                    constraint['attributes'] = couple
 
                     constraint_str = query_constraint(self.log, constraint, consider_vacuity, min_support)
                     if constraint_str:
@@ -599,7 +601,7 @@ class Declare4Py:
 
         return self.query_checking_results
 
-    def filter_query_checking(self, queries) -> list[list[str]]:
+    def filter_query_checking(self, queries) -> List[List[str]]:
         """
         The function outputs, for each constraint of the query checking result, only the elements of the constraint
         specified in the 'queries' list.
