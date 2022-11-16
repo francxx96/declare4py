@@ -12,12 +12,8 @@ def check_trace_conformance(trace, model, consider_vacuity):
 
     trace_results = {}
     
-    for constraint in model.checkers:
-        constraint_str = constraint['template'].templ_str
-        if constraint['template'].supports_cardinality:
-            constraint_str += str(constraint['n'])
-        constraint_str += '[' + ", ".join(constraint["attributes"]) + '] |' + ' |'.join(constraint["condition"])
-
+    for idx, constraint in enumerate(model.checkers):
+        constraint_str = model.constraints[idx]        
         rules["activation"] = constraint['condition'][0]
 
         if constraint['template'].supports_cardinality:
