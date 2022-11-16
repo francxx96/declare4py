@@ -1,6 +1,6 @@
 import pandas as pd
 
-from declare4py.src.declare4py.log_utils.log_generator import LogGenerator
+from declare4py.src.declare4py.core.log_generator import LogGenerator
 
 
 class AspGenerator:

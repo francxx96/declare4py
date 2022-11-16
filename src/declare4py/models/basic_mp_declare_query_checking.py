@@ -9,6 +9,9 @@ from declare4py.src.declare4py.log_utils.decl_model import DeclModel
 from declare4py.src.declare4py.mp_constants import Template, TraceState
 from declare4py.src.declare4py.core.query_checking import QueryChecking
 
+"""
+Provides basic query checking functionalities
+"""
 
 class BasicMPDeclareQueryChecking(QueryChecking, ABC):
 
@@ -16,7 +19,7 @@ class BasicMPDeclareQueryChecking(QueryChecking, ABC):
         QueryChecking.__init__(self)
         self.query_checking_results = None
 
-    def query_checking(self, consider_vacuity: bool,
+    def run(self, consider_vacuity: bool,
                        template_str: str = None, max_declare_cardinality: int = 1,
                        activation: str = None, target: str = None,
                        act_cond: str = None, trg_cond: str = None, time_cond: str = None,

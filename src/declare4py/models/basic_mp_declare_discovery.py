@@ -4,13 +4,16 @@ from declare4py.src.declare4py.log_utils.decl_model import DeclModel
 from declare4py.src.declare4py.core.discovery import Discovery
 from declare4py.src.declare4py.mp_constants import Template, TraceState
 
+"""
+Provides basic discovery functionalities
+"""
 
-class BasicDeclareDiscovery:
+class BasicMPDeclareDiscovery:
 
     def __init__(self):
         Discovery.__init__(self)
 
-    def discovery(self, consider_vacuity: bool, max_declare_cardinality: int = 3, output_path: str = None) \
+    def run(self, consider_vacuity: bool, max_declare_cardinality: int = 3, output_path: str = None) \
             -> dict[str: dict[tuple[int, str]: CheckerResult]]:
         """
         Performs discovery of the supported DECLARE templates for the provided log by using the computed frequent item
