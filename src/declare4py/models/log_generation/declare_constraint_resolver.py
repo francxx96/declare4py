@@ -103,7 +103,7 @@ class DeclareConstraintConditionResolver:
             attr = cond.split(".")[1].strip()  # A.grade>2
         else:
             attr = cond
-        attr = re.search('[\w]+', attr)
+        attr = re.search(r'\w+', attr)
         ls = []
         if attr:
             attr = attr.group(0).strip()
@@ -196,6 +196,7 @@ class DeclareConstraintConditionResolver:
                                lp_st=None) -> typing.List[str] | None:
         if lp_st is None:
             lp_st = []
+
         def expression_to_name(expression):
             if expression.isliteral:
                 condition_name = str(expression)
@@ -233,7 +234,7 @@ class DeclareConstraintConditionResolver:
 
 
 class DeclareConstraintResolver:
-    CONSTRAINTS_TEMPLATES_PATTERN = "^(.*)\[(.*)\]\s*(.*)$"
+    CONSTRAINTS_TEMPLATES_PATTERN = r"^(.*)\[(.*)\]\s*(.*)$"
 
     def __init__(self):
         self.templates_name = CONSTRAINTS_TEMPLATES.keys()
@@ -275,5 +276,3 @@ class DeclareConstraintResolver:
         if conds_len > 3:  # TODO: what to in this case
             raise ValueError(f"Unable to parse the line due to the exceeds conditions (> 3)")
         return ct_model
-
-

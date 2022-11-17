@@ -1,54 +1,59 @@
 import json
 from enum import Enum
 
+from abc import ABC, abstractmethod
 from src.declare4py.log_utils.ltl_model import LTLModel
 
 
-class DeclareModelEvent(dict):
-    name: str
-    event_type: str
-    attribute: dict[str, dict]
-
+class DeclareModelCustomDict(dict, ABC):
+    """
+    Custom DICT helper class: printable and serializable object
+    """
     def __init__(self, *args, **kw):
         super().__init__()
-        self._dict = dict(*args, **kw)
-        self.attribute = {}
-        self._dict["attribute"] = self.attribute
+        self.key_value = dict(*args, **kw)
 
     def __getitem__(self, key):
         self.update_props()
-        return self._dict[key]
+        return self.key_value[key]
 
     def __setitem__(self, key, value):
-        self._dict[key] = value
+        self.key_value[key] = value
 
     def __iter__(self):
         self.update_props()
-        return iter(self._dict)
+        return iter(self.key_value)
 
     def __len__(self):
         self.update_props()
-        return len(self._dict)
+        return len(self.key_value)
 
     def __delitem__(self, key):
         self.update_props()
-        self._dict["name"] = self.name
-        self._dict["event_type"] = self.event_type
-        self._dict["attribute"] = self.attribute
-        del self._dict[key]
+        del self.key_value[key]
 
     def __str__(self):
         self.update_props()
-        return str(self._dict)
+        # return json.dumps(self, default=lambda o: o.__dict__,)
+        # return json.dumps(self.key_value, default=lambda o: self.default_json(o))
+        # return json.dumps(self)
+        return str(self.key_value)
+
+    def to_json(self, pure=False) -> str:
+        if pure:
+            return json.dumps(self.key_value)
+        st = str(self.key_value).replace("'", '"')
+        return str(st)
+        # return json.dumps(json.loads(st))
+        # return o.__dict__
+        # return "33"
 
     def __repr__(self):
-        self.update_props()
-        return str(self._dict)
+        return self.__str__()
 
+    @abstractmethod
     def update_props(self):
-        self._dict["name"] = self.name
-        self._dict["event_type"] = self.event_type
-        self._dict["attribute"] = self.attribute
+        pass
 
 
 class DeclareModelAttributeType(str, Enum):
@@ -58,19 +63,42 @@ class DeclareModelAttributeType(str, Enum):
     FLOAT_RANGE = "float_range"
     ENUMERATION = "enumeration"
 
+    def __str__(self):
+        return self.value
 
-class DeclareParsedModel(dict):
-    events: {str: DeclareModelEvent} = {}
+    def __repr__(self):
+        return "\""+self.__str__()+"\""
+
+
+class DeclareModelEvent(DeclareModelCustomDict):
+    name: str
+    event_type: str
+    attribute: dict[str, dict]
+
+    def __init__(self):
+        super().__init__()
+        self.name = ""
+        self.event_type = ""
+        self.attribute = {}
+        self.update_props()
+
+    def update_props(self):
+        self.key_value["name"] = self.name
+        self.key_value["event_type"] = self.event_type
+        self.key_value["attribute"] = self.attribute
+
+
+class DeclareParsedModel(DeclareModelCustomDict):
     attributes_list: dict[str, dict] = []
+    events: dict[str, DeclareModelEvent] = {}
     template_constraints = {}
 
-    def __init__(self, *args, **kw):
+    def __init__(self):
         super().__init__()
-        self._dict = dict(*args, **kw)
         self.events = {}
         self.attributes_list = {}
         self.template_constraints = {}
-        self.__update_dict()
+        self.update_props()
 
     def add_event(self, name: str, event_type: str) -> None:
         """
@@ -111,7 +139,10 @@ class DeclareParsedModel(dict):
         if attrs is None:
             attrs = {}
             dme.attribute = attrs
-        attrs[attr_name] = {"value": "", "value_type": ""}
+        if attr_name in self.attributes_list:
+            attrs[attr_name] = self.attributes_list[attr_name]  # saving the same reference. Same attr cannot have two values
+        else:
+            attrs[attr_name] = {"value": "", "value_type": ""}
 
         if attr_name not in self.attributes_list:
             # we save the reference of attributes in separate list
@@ -139,43 +170,16 @@ class DeclareParsedModel(dict):
         attribute["value"] = attr_value
         attribute["value_type"] = attr_type
 
-    def __update_dict(self):
+    def update_props(self):
         """
         Updates the _dict, so it has updated values when any dict op is occurred
         Returns
         -------
 
         """
-        self._dict["events"] = self.events
-        self._dict["attributes_list"] = self.attributes_list
-        self._dict["template_constraints"] = self.template_constraints
-
-    def __getitem__(self, key):
-        self.__update_dict()
-        return self._dict[key]
-
-    def __setitem__(self, key, value):
-        self._dict[key] = value
-
-    def __iter__(self):
-        self.__update_dict()
-        return iter(self._dict)
-
-    def __len__(self):
-        self.__update_dict()
-        return len(self._dict)
-
-    def __delitem__(self, key):
-        self.__update_dict()
-        del self._dict[key]
-
-    def __str__(self):
-        self.__update_dict()
-        return json.dumps(self._dict)
-
-    def __repr__(self):
-        self.__update_dict()
-        return self.__str__()
+        self.key_value["events"] = self.events
+        self.key_value["attributes_list"] = self.attributes_list
+        self.key_value["template_constraints"] = self.template_constraints
 
 
 class DeclModel(LTLModel):
@@ -186,7 +190,7 @@ class DeclModel(LTLModel):
         self.activities = []
         self.serialized_constraints = []
         self.constraints = []
-        self.parsed_mode = {}
+        self.parsed_model = {}
 
     def set_constraints(self):
         constraint_str = ''

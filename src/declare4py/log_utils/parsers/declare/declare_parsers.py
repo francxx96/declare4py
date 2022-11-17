@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import re
-from enum import Enum
 
 from src.declare4py.log_utils.parsers.abstract.modelparser import ModelParser
 from src.declare4py.log_utils.parsers.declare.decl_model import DeclModel, DeclareModelAttributeType, DeclareParsedModel
 from src.declare4py.mp_constants import Template
-
 
 
 class DeclareParseDetector:
@@ -258,7 +256,7 @@ class DeclareParser(ModelParser):
                 split = line.split(": ", maxsplit=1)
                 attributes_list = split[0]  # price:art1, price:art2, cat2
                 attributes_list = attributes_list.strip().split(",")
-                value = split[0].strip()
+                value = split[1].strip()
                 typ = DeclareParseDetector.detect_declare_attr_value_type(value)
                 for attr in attributes_list:
                     dpm.add_attribute_value(attr, typ, value)
