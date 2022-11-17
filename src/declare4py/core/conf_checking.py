@@ -7,8 +7,8 @@ Initializes class ConformanceChecking, inheriting from class PMTask
 
 Parameters
 -------
-PMTask
-    inheriting from PMTask
+    PMTask
+        inheriting from PMTask
 Attributes
 ----------
     consider_vacuity : bool

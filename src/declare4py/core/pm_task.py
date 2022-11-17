@@ -11,11 +11,12 @@ Attributes
 """
 from src.declare4py.log_utils.decl_model import DeclModel
 from src.declare4py.log_utils.log_analyzer import LogAnalyzer
+from src.declare4py.log_utils.ltl_model import LTLModel
 
 
 class PMTask:
 
-    def __init__(self):
-        self.log_analyzer: LogAnalyzer = None
-        self.decl_model: DeclModel = None
+    def __init__(self, log: LogAnalyzer, ltl_model: LTLModel):
+        self.log_analyzer: LogAnalyzer = log
+        self.decl_model: DeclModel = ltl_model
 
