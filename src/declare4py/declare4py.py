@@ -399,7 +399,7 @@ class Declare4Py:
 
             if length == 1:
                 for templ in Template.get_unary_templates():
-                    constraint = {"template": templ, "attributes": item_set, "condition": ("", "")}
+                    constraint = {"template": templ, "activities": item_set, "condition": ("", "")}
                     if not templ.supports_cardinality:
                         self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
                     else:
@@ -409,10 +409,10 @@ class Declare4Py:
 
             elif length == 2:
                 for templ in Template.get_binary_templates():
-                    constraint = {"template": templ, "attributes": item_set, "condition": ("", "", "")}
+                    constraint = {"template": templ, "activities": item_set, "condition": ("", "", "")}
                     self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
 
-                    constraint['attributes'] = reversed(list(item_set))
+                    constraint['activities'] = reversed(list(item_set))
                     self.discovery_results |= discover_constraint(self.log, constraint, consider_vacuity)
 
         activities_decl_format = "activity " + "\nactivity ".join(self.get_log_alphabet_activities()) + "\n"
@@ -572,7 +572,7 @@ class Declare4Py:
             if template.is_binary:
                 constraint['condition'] = (act_cond, trg_cond, time_cond)
                 for couple in activity_combos:
-                    constraint['attributes'] = couple
+                    constraint['activities'] = couple
 
                     constraint_str = query_constraint(self.log, constraint, consider_vacuity, min_support)
                     if constraint_str:
@@ -587,7 +587,7 @@ class Declare4Py:
             else:   # unary template
                 constraint['condition'] = (act_cond, time_cond)
                 for activity in activations_to_check:
-                    constraint['attributes'] = activity
+                    constraint['activities'] = activity
 
                     constraint_str = query_constraint(self.log, constraint, consider_vacuity, min_support)
                     if constraint_str:

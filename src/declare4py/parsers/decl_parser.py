@@ -155,18 +155,18 @@ def parse_decl(lines):
             template = Template.get_template_from_string(template_str)
 
             if template is not None:
-                attributes = split[1].split("]")[0].split(",")
-                attributes = [act.strip() for act in attributes]
+                constr_activities = split[1].split("]")[0].split(",")
+                constr_activities = [act.strip() for act in constr_activities]
                 tmp = {
                     "template": template,
-                    "attributes": attributes,
+                    "activities": constr_activities,
                     "condition": re.split(r'\s+\|', line)[1:]
                 }
 
                 if template.supports_cardinality:
                     tmp['n'] = 1 if not cardinality else int(cardinality)
 
-                result.checkers.append(tmp)
+                result.constraints.append(tmp)
 
     result.set_constraints()
     return result

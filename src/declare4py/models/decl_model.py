@@ -1,19 +1,20 @@
 class DeclModel(object):
     def __init__(self):
         self.activities = []
+        self.serialized_constraints = []
         self.constraints = []
-        self.checkers = []
+        
     
     def set_constraints(self):
         constraint_str = ''
-        if len(self.checkers) > 0:
-            for checker in self.checkers:
+        if len(self.constraints) > 0:
+            for constraint in self.constraints:
 
-                constraint_str = checker['template'].templ_str
-                if checker['template'].supports_cardinality:
-                    constraint_str += str(checker['n'])
-                constraint_str += '[' + ", ".join(checker["attributes"]) + '] |' + ' |'.join(checker["condition"])
-                self.constraints.append(constraint_str)
+                constraint_str = constraint['template'].templ_str
+                if constraint['template'].supports_cardinality:
+                    constraint_str += str(constraint['n'])
+                constraint_str += '[' + ", ".join(constraint["activities"]) + '] |' + ' |'.join(constraint["condition"])
+                self.serialized_constraints.append(constraint_str)
                 
     def get_decl_model_constraints(self):
-        return self.constraints
+        return self.serialized_constraints
