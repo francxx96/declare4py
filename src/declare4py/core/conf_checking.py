@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from declare4py.src.declare4py.core.pm_task import PMTask
+from src.declare4py.core.pm_task import PMTask
 
 """
 Initializes class ConformanceChecking, inheriting from class PMTask
@@ -15,6 +15,7 @@ Attributes
         True means that vacuously satisfied traces are considered as satisfied, violated otherwise.
         
 """
+
 
 class ConformanceChecking(PMTask):
 

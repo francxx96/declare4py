@@ -1,12 +1,19 @@
-from declare4py.src.declare4py.api_functions import check_trace_conformance
-from declare4py.src.declare4py.checker_result import CheckerResult
-from declare4py.src.declare4py.log_utils.decl_model import DeclModel
-from declare4py.src.declare4py.core.discovery import Discovery
-from declare4py.src.declare4py.mp_constants import Template, TraceState
+
 
 """
 Provides basic discovery functionalities
+
+Attributes
+--------
+    Discovery
+        inherit class init
 """
+from src.declare4py.api_functions import check_trace_conformance
+from src.declare4py.checker_result import CheckerResult
+from src.declare4py.core.discovery import Discovery
+from src.declare4py.log_utils.decl_model import DeclModel
+from src.declare4py.mp_constants import Template, TraceState
+
 
 class BasicMPDeclareDiscovery:
 

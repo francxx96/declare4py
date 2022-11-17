@@ -1,14 +1,14 @@
 from abc import abstractmethod
 
-from declare4py.src.declare4py.core.pm_task import PMTask
+from src.declare4py.core.pm_task import PMTask
 
 """
 Initializes class Discovery, inheriting from class PMTask
 
 Parameters
 -------
-PMTask
-    inheriting from PMTask
+    PMTask
+        inheriting from PMTask
 Attributes
 -------
     consider_vacuity : bool
@@ -20,6 +20,7 @@ Attributes
     max_declare_cardinality : int, optional
         the maximum cardinality that the algorithm checks for DECLARE templates supporting it (default 3).
 """
+
 
 class Discovery(PMTask):
 

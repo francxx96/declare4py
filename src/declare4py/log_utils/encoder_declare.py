@@ -1,7 +1,7 @@
 import re
 
-from declare4py.src.declare4py.log_utils.decl_model import DeclModel
-from declare4py.src.declare4py.mp_constants import Template
+from src.declare4py.log_utils.decl_model import DeclModel
+from src.declare4py.mp_constants import Template
 
 
 class EncoderDeclare:

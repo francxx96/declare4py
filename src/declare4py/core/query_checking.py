@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from declare4py.src.declare4py.core.pm_task import PMTask
+from src.declare4py.core.pm_task import PMTask
 
 """
 Initializes class QueryChecking, inheriting from class PMTask

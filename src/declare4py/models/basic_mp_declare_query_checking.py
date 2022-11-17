@@ -4,20 +4,37 @@ from abc import ABC
 
 from numpy import product, ceil
 
-from declare4py.src.declare4py.api_functions import check_trace_conformance
-from declare4py.src.declare4py.log_utils.decl_model import DeclModel
-from declare4py.src.declare4py.mp_constants import Template, TraceState
-from declare4py.src.declare4py.core.query_checking import QueryChecking
+from src.declare4py.api_functions import check_trace_conformance
+from src.declare4py.core.query_checking import QueryChecking
+from src.declare4py.log_utils.decl_model import DeclModel
+from src.declare4py.models.query_checking_results import QueryCheckingResults
+from src.declare4py.mp_constants import Template, TraceState
 
 """
-Provides basic query checking functionalities
+Class used to provide basic query checking functionalities
+
+Parameters
+--------
+    QueryChecking
+        inherits attributes from the QueryChecking class
+
+Attributes
+--------
+    QueryChecking init
+        inherits init attributes form the QueryChecking class
+        
+    query_checking_results : dict
+        output type for this class
+        
+        
 """
+
 
 class BasicMPDeclareQueryChecking(QueryChecking, ABC):
 
     def __init__(self):
         QueryChecking.__init__(self)
-        self.query_checking_results = None
+        self.query_checking_results: dict = None
 
     def run(self, consider_vacuity: bool,
                        template_str: str = None, max_declare_cardinality: int = 1,
@@ -125,7 +142,7 @@ class BasicMPDeclareQueryChecking(QueryChecking, ABC):
                 for couple in activity_combos:
                     constraint['attributes'] = ', '.join(couple)
 
-                    constraint_str = query_constraint(self.log, constraint, consider_vacuity, min_support)
+                    constraint_str = self.query_constraint(self.log, constraint, consider_vacuity, min_support)
                     if constraint_str:
                         res_value = {
                             "template": template_str, "activation": couple[0], "target": couple[1],
@@ -138,7 +155,7 @@ class BasicMPDeclareQueryChecking(QueryChecking, ABC):
                 for activity in activations_to_check:
                     constraint['attributes'] = activity
 
-                    constraint_str = query_constraint(self.log, constraint, consider_vacuity, min_support)
+                    constraint_str = self.query_constraint(self.log, constraint, consider_vacuity, min_support)
                     if constraint_str:
                         res_value = {
                             "template": template_str, "activation": activity,

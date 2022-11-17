@@ -1,13 +1,20 @@
 from abc import ABC
 
-from declare4py.src.declare4py.api_functions import check_trace_conformance
-from declare4py.src.declare4py.checker_result import CheckerResult
-from declare4py.src.declare4py.core.conf_checking import ConformanceChecking
-from declare4py.src.declare4py.models.conformance_checking_results import ConformanceCheckingResults
+from src.declare4py.core.conf_checking import ConformanceChecking
+from src.declare4py.models.conformance_checking_results import ConformanceCheckingResults
 
 """
 Provides basic conformance checking functionalities
+
+Parameters
+--------
+    conformance_checking_results : dict
+        return type for this class
+        
+    ConformanceChecking
+        inheriting init function
 """
+
 
 class BasicMPDeclareConformanceChecking(ConformanceChecking, ABC):
 

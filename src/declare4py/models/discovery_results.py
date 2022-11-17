@@ -1,9 +1,15 @@
-from declare4py.src.declare4py.models.basic_mp_declare_discovery import BasicMPDeclareDiscovery
 
 """
 Initializes class DiscoveryResults
 
+Parameters
+--------
+    BasicMPDeclareDiscovery
+        inherit class init
+
 """
+from src.declare4py.models.basic_mp_declare_discovery import BasicMPDeclareDiscovery
+
 
 class DiscoveryResults:
 
