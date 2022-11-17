@@ -4,7 +4,6 @@ class DeclModel(object):
         self.serialized_constraints = []
         self.constraints = []
         
-    
     def set_constraints(self):
         constraint_str = ''
         if len(self.constraints) > 0:
