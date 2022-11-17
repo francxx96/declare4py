@@ -1,0 +1,7 @@
+activity A
+bind A: grade
+activity B
+bind B: grade
+grade: integer between 1 and 5
+Response[A, B] |A.grade = 3 |B.grade = 5 |1,5,s
+
