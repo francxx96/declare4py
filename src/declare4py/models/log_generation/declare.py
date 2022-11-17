@@ -220,7 +220,8 @@ class DeclareParser:
         arr = line.strip().split(': ')  # grade, mark: integer between 1 and 5
         if len(arr) != 2:
             raise ValueError(f"Failed to parse in line {line_idx}: {line}")
-        props = arr[0].strip().split(", ")  # TODO: still to improve  maybe using encoding to avoid if attribute name contains "," char.
+        props = arr[0].strip().split(
+            ", ")  # TODO: still to improve  maybe using encoding to avoid if attribute name contains "," char.
         value = arr[1].strip()  # TODO: don't know yet how can be improved if there is an complex enum value "gro,up:v2"
         dopt = self.__parse_attr_value(value, line_idx)
         for p in props:
@@ -283,4 +284,3 @@ class DeclareParser:
     def __is_reserved_keyboard(self, word: str) -> bool:
         ws = DeclareReserved.words
         return word in ws
-

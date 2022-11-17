@@ -6,6 +6,7 @@ from pm4py.objects.log import obj as lg
 
 
 class LogAnalyzer:
+
     """
         Wrapper that collects the input log, the computed binary encoding and frequent item sets
         for the input log.

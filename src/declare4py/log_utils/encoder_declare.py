@@ -1,6 +1,6 @@
 import re
 
-from src.declare4py.log_utils.decl_model import DeclModel
+from src.declare4py.log_utils.parsers.declare.decl_model import DeclModel
 from src.declare4py.mp_constants import Template
 
 
@@ -31,7 +31,7 @@ class EncoderDeclare:
         """
         return self.supported_templates
 
-    def parse_data_cond(cond):
+    def parse_data_cond(self, cond):
         try:
             cond = cond.strip()
             if cond == "":
@@ -125,7 +125,7 @@ class EncoderDeclare:
         except Exception:
             raise SyntaxError
 
-    def parse_time_cond(condition):
+    def parse_time_cond(self, condition):
         try:
             if condition.strip() == "":
                 condition = "True"
@@ -151,16 +151,16 @@ class EncoderDeclare:
         except Exception:
             raise SyntaxError
 
-    def parse_decl_from_file(path):
+    def parse_decl_from_file(self, path):
         fo = open(path, "r+")
         lines = fo.readlines()
         fo.close()
         return path.parse_decl(lines)
 
-    def parse_decl_from_string(decl_string):
+    def parse_decl_from_string(self, decl_string):
         return decl_string.parse_decl(decl_string.split("\n"))
 
-    def parse_decl(lines):
+    def parse_decl(self, lines):
         result = DeclModel()
 
         for line in lines:

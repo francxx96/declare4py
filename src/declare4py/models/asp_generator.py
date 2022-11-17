@@ -7,16 +7,14 @@ import typing
 from random import randrange
 
 import clingo
-import pandas as pd
 from clingo import SymbolType
 
 from pm4py.objects.log import obj as lg
 from pm4py.objects.log.exporter.xes import exporter
 
 from src.declare4py.core.log_generator import LogGenerator
-from src.declare4py.log_utils.decl_model import DeclModel
+from src.declare4py.log_utils.parsers.declare.decl_model import DeclModel
 from src.declare4py.log_utils.log_analyzer import LogAnalyzer
-from src.declare4py.models.log_generation.declare import DeclareParser
 from src.declare4py.models.log_generation.declare2Lp import Declare2lp
 from src.declare4py.models.log_generation.distribution import Distributor
 from datetime import datetime
@@ -113,12 +111,11 @@ class AspGenerator(LogGenerator):
 
     def __init__(self, num_traces: int, min_event: int, max_event: int,
                  decl_model: DeclModel, template_path: str, encoding_path: str,
-                 log: LogAnalyzer,
+                 log: LogAnalyzer = None,
                  distributor_type: typing.Literal["uniform", "normal", "custom"] = "uniform",
                  custom_probabilities: typing.Optional[typing.List[float]] = None
                  ):
         super().__init__(num_traces, min_event, max_event, log, decl_model)
-        self.decl_model_path = decl_model
         self.template_path = template_path
         self.encoding_path = encoding_path
         self.clingo_output = []
@@ -154,8 +151,8 @@ class AspGenerator(LogGenerator):
         asp_model = self.asp_custom_structure
         i = 0
         for clingo_trace in self.clingo_output:
-            traceModel = ASPCustomTraceModel(f"trace_{i}", clingo_trace)
-            asp_model.traces.append(traceModel)
+            trace_model = ASPCustomTraceModel(f"trace_{i}", clingo_trace)
+            asp_model.traces.append(trace_model)
             i = i + 1
 
     def __generate_asp_trace(self, decl_model_lp_file: str, num_events: int, num_traces: int,
@@ -173,8 +170,9 @@ class AspGenerator(LogGenerator):
         self.clingo_output.append(symbols)
 
     def __pm4py_log(self):
+
         self.log_analyzer.log = lg.EventLog()
-        self.log_analyzer.log.extensions["concept"] = {}
+        self.log_analyzer.log.extensions["concept"] = {}  # TODO: add which extensions?
         self.log_analyzer.log.extensions["concept"]["name"] = lg.XESExtension.Concept.name
         self.log_analyzer.log.extensions["concept"]["prefix"] = lg.XESExtension.Concept.prefix
         self.log_analyzer.log.extensions["concept"]["uri"] = lg.XESExtension.Concept.uri
