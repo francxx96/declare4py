@@ -1,5 +1,6 @@
 from _future_ import annotations
-# TODO: inserire questa riga di codice per backward compatibility dei tipi in ogni file
+
+from .log_utils.ltl_model import LTLModel
 
 from .mp_constants import Template
 from src.declare4py.existence import *
@@ -7,8 +8,8 @@ from src.declare4py.choice import *
 from .old_structure.negative_relation import *
 from .old_structure.relation import *
 
-# TODO: aggiungere tipi firma check_trace_conformance_checking
-def check_trace_conformance(trace, model, consider_vacuity):
+
+def check_trace_conformance(trace: int, model: LTLModel, consider_vacuity: bool):
     rules = {"vacuous_satisfaction": consider_vacuity}
 
     # Set containing all constraints that raised SyntaxError in checker functions

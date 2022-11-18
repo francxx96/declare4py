@@ -1,3 +1,5 @@
+from _future_ import annotations
+
 from abc import ABC
 
 from src.declare4py.api_functions import check_trace_conformance

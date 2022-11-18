@@ -1,3 +1,5 @@
+from _future_ import annotations
+
 from datetime import timedelta
 
 from src.declare4py.checker_result import CheckerResult

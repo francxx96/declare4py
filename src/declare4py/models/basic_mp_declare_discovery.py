@@ -1,4 +1,4 @@
-
+from _future_ import annotations
 
 """
 Provides basic discovery functionalities

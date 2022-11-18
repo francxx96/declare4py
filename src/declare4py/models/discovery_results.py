@@ -1,3 +1,4 @@
+from _future_ import annotations
 
 """
 Initializes class BasicDiscoveryResults

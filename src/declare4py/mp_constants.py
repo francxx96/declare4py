@@ -1,3 +1,5 @@
+from _future_ import annotations
+
 from enum import Enum
 
 

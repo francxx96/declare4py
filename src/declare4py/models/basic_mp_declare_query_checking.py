@@ -1,3 +1,4 @@
+from _future_ import annotations
 import re
 import sys
 from abc import ABC
@@ -198,7 +199,6 @@ class BasicMPDeclareQueryChecking(QueryChecking, ABC):
                     sys.exit(1)
             assignments.append(tmp_answer)
         return assignments
-
 
     def query_constraint(log: LogAnalyzer, constraint: str, consider_vacuity: bool, min_support: int):
         # Fake model composed by a single constraint

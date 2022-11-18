@@ -1,3 +1,5 @@
+from _future_ import annotations
+
 import re
 
 from src.declare4py.log_utils.decl_model import DeclModel
