@@ -1,0 +1,10 @@
+activity A
+bind A: grade, 5
+activity B
+bind B: grade
+grade: integer between 1 and 5
+5: integer between 0 and 2
+Response[A, B] |A.grade = 3 |B.grade = 5 |1,5,s
+Co-Existence[B, A] |2 |1 |
+Existence[A] | |
+Not Co-Existence[B, A] | | |

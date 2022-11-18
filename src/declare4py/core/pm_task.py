@@ -9,7 +9,8 @@ Attributes
     decl_model : DeclareModel
     
 """
-from src.declare4py.log_utils.decl_model import DeclModel
+
+from src.declare4py.log_utils.parsers.declare.decl_model import DeclModel
 from src.declare4py.log_utils.log_analyzer import LogAnalyzer
 from src.declare4py.log_utils.ltl_model import LTLModel
 

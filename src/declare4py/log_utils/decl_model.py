@@ -1,4 +1,4 @@
-from _future_ import annotations
+
 
 from src.declare4py.log_utils.ltl_model import LTLModel
 

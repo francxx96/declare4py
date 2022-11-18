@@ -4,9 +4,11 @@ import pandas as pd
 import pm4py
 from mlxtend.frequent_patterns import fpgrowth, apriori
 from mlxtend.preprocessing import TransactionEncoder
+from pm4py.objects.log import obj as lg
 
 
 class LogAnalyzer:
+
     """
         Wrapper that collects the input log, the computed binary encoding and frequent item sets
         for the input log.
@@ -24,7 +26,7 @@ class LogAnalyzer:
     """
 
     def __init__(self):
-        self.log = None
+        self.log: lg.EventLog = None
         self.log_length = None
         self.frequent_item_sets = None
         self.binary_encoded_log = None
