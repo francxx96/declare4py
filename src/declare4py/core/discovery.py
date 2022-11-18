@@ -24,11 +24,11 @@ Attributes
 
 class Discovery(PMTask):
 
-    def __init__(self):
+    def __init__(self, log, ltl_model):
         self.consider_vacuity: bool = None
         self.support: str = None
         self.max_declare_cardinality: int = None
-        PMTask.__init__(self)
+        super().__init__(log, ltl_model)
 
     @abstractmethod
     def run(self):

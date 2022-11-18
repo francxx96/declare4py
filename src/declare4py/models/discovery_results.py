@@ -1,17 +1,15 @@
 
 """
-Initializes class DiscoveryResults
+Initializes class BasicDiscoveryResults
 
-Parameters
---------
-    BasicMPDeclareDiscovery
-        inherit class init
-
+Attributes
+-------
+    dict_results : dict
+        dictionary of conformance checking results
 """
-from src.declare4py.models.basic_mp_declare_discovery import BasicMPDeclareDiscovery
 
 
-class DiscoveryResults:
+class BasicDiscoveryResults:
 
-    def __init__(self):
-        BasicMPDeclareDiscovery.__init__(self)
+    def __init__(self, dict_results: dict):
+        self.basic_discovery_results: dict = dict_results

@@ -1,7 +1,8 @@
 from abc import ABC
 
+from src.declare4py.api_functions import check_trace_conformance
 from src.declare4py.core.conf_checking import ConformanceChecking
-from src.declare4py.models.conformance_checking_results import ConformanceCheckingResults
+from src.declare4py.models.conformance_checking_results import BasicConformanceCheckingResults
 
 """
 Provides basic conformance checking functionalities
@@ -18,11 +19,11 @@ Parameters
 
 class BasicMPDeclareConformanceChecking(ConformanceChecking, ABC):
 
-    def __init__(self):
+    def __init__(self, consider_vacuity):
         self.conformance_checking_results = None
-        ConformanceChecking.__init__(self)
+        super().__init__(consider_vacuity)
 
-    def run(self, consider_vacuity: bool) -> ConformanceCheckingResults:
+    def run(self, consider_vacuity: bool) -> BasicConformanceCheckingResults:
         """
         Performs conformance checking for the provided event log and DECLARE model.
 

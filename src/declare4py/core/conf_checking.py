@@ -19,9 +19,9 @@ Attributes
 
 class ConformanceChecking(PMTask):
 
-    def __init__(self):
+    def __init__(self, log, ltl_model):
         self.consider_vacuity: bool
-        PMTask.__init__(self)
+        super().__init__(log, ltl_model)
 
     @abstractmethod
     def run(self):

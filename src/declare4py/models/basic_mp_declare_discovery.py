@@ -3,25 +3,33 @@
 """
 Provides basic discovery functionalities
 
-Attributes
+Parameters
 --------
     Discovery
         inherit class init
+
+Attributes
+--------
+
+
 """
 from src.declare4py.api_functions import check_trace_conformance
 from src.declare4py.checker_result import CheckerResult
 from src.declare4py.core.discovery import Discovery
 from src.declare4py.log_utils.decl_model import DeclModel
+from src.declare4py.log_utils.log_analyzer import LogAnalyzer
+from src.declare4py.models.discovery_results import BasicDiscoveryResults
 from src.declare4py.mp_constants import Template, TraceState
 
 
-class BasicMPDeclareDiscovery:
+class BasicMPDeclareDiscovery(Discovery):
 
-    def __init__(self):
-        Discovery.__init__(self)
+    def __init__(self, consider_vacuity, support, max_declare_cardinality):
+        super().__init__(consider_vacuity, support, max_declare_cardinality)
+        output_path: str = None
 
     def run(self, consider_vacuity: bool, max_declare_cardinality: int = 3, output_path: str = None) \
-            -> dict[str: dict[tuple[int, str]: CheckerResult]]:
+            -> BasicDiscoveryResults:
         """
         Performs discovery of the supported DECLARE templates for the provided log by using the computed frequent item
         sets.
@@ -59,7 +67,7 @@ class BasicMPDeclareDiscovery:
 
             if length == 1:
                 for templ in Template.get_unary_templates():
-                    constraint = {"template": templ, "attributes": ', '.join(item_set), "condition": ("", "")}
+                    constraint = {"template": templ, "activities": ', '.join(item_set), "condition": ("", "")}
                     if not templ.supports_cardinality:
                         self.discovery_results |= self.discover_constraint(self.log, constraint, consider_vacuity)
                     else:
@@ -69,10 +77,10 @@ class BasicMPDeclareDiscovery:
 
             elif length == 2:
                 for templ in Template.get_binary_templates():
-                    constraint = {"template": templ, "attributes": ', '.join(item_set), "condition": ("", "", "")}
+                    constraint = {"template": templ, "activities": ', '.join(item_set), "condition": ("", "", "")}
                     self.discovery_results |= self.discover_constraint(self.log, constraint, consider_vacuity)
 
-                    constraint['attributes'] = ', '.join(reversed(list(item_set)))
+                    constraint['activities'] = ', '.join(reversed(list(item_set)))
                     self.discovery_results |= self.discover_constraint(self.log, constraint, consider_vacuity)
 
         activities_decl_format = "activity " + "\nactivity ".join(self.get_log_alphabet_activities()) + "\n"
@@ -124,20 +132,19 @@ class BasicMPDeclareDiscovery:
 
         return result
 
-    def discover_constraint(log: str, constraint: str, consider_vacuity: bool):
+    def discover_constraint(log: LogAnalyzer, constraint: str, consider_vacuity: bool):
         # Fake model composed by a single constraint
         model = DeclModel()
-        model.checkers.append(constraint)
+        model.constraints.append(constraint)
 
         discovery_res = {}
 
         for i, trace in enumerate(log):
             trc_res = check_trace_conformance(trace, model, consider_vacuity)
-            if not trc_res:  # Occurring when constraint data conditions are formatted bad
+            if not trc_res:     # Occurring when constraint data conditions are formatted bad
                 break
 
-            constraint_str, checker_res = next(
-                iter(trc_res.items()))  # trc_res will always have only one element inside
+            constraint_str, checker_res = next(iter(trc_res.items()))  # trc_res will always have only one element inside
             if checker_res.state == TraceState.SATISFIED:
                 new_val = {(i, trace.attributes['concept:name']): checker_res}
                 if constraint_str in discovery_res:

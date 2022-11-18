@@ -43,9 +43,10 @@ Attributes
         the minimum support that a constraint needs to have to be included in the result (default 1).
 """
 
+
 class QueryChecking(PMTask):
 
-    def __init__(self):
+    def __init__(self, log, ltl_model):
         self.consider_vacuity: bool
         self.template_str: str = None
         self.max_declare_cardinality: int = 1
@@ -55,7 +56,7 @@ class QueryChecking(PMTask):
         self.trg_cond: str = None
         self.time_cond: str = None
         self.min_support: float = 1.0
-        PMTask.__init__(self)
+        super().__init__(log, ltl_model)
 
     @abstractmethod
     def run(self):

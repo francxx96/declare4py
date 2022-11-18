@@ -7,7 +7,8 @@ from numpy import product, ceil
 from src.declare4py.api_functions import check_trace_conformance
 from src.declare4py.core.query_checking import QueryChecking
 from src.declare4py.log_utils.decl_model import DeclModel
-from src.declare4py.models.query_checking_results import QueryCheckingResults
+from src.declare4py.log_utils.log_analyzer import LogAnalyzer
+from src.declare4py.models.query_checking_results import BasicQueryCheckingResults
 from src.declare4py.mp_constants import Template, TraceState
 
 """
@@ -32,15 +33,15 @@ Attributes
 
 class BasicMPDeclareQueryChecking(QueryChecking, ABC):
 
-    def __init__(self):
-        QueryChecking.__init__(self)
+    def __init__(self, consider_vacuity, template_str, max_declare_cardinality, activation, target, act_cond, trg_cond, time_cond, min_support):
+        super().__init__(consider_vacuity, template_str, max_declare_cardinality, activation, target, act_cond, trg_cond, time_cond, min_support)
         self.query_checking_results: dict = None
 
     def run(self, consider_vacuity: bool,
                        template_str: str = None, max_declare_cardinality: int = 1,
                        activation: str = None, target: str = None,
                        act_cond: str = None, trg_cond: str = None, time_cond: str = None,
-                       min_support: float = 1.0) -> dict[str: dict[str: str]]:
+                       min_support: float = 1.0) -> BasicQueryCheckingResults:
         """
         Performs query checking for a (list of) template, activation activity and target activity. Optional
         activation, target and time conditions can be specified.
@@ -140,7 +141,7 @@ class BasicMPDeclareQueryChecking(QueryChecking, ABC):
             if template.is_binary:
                 constraint['condition'] = (act_cond, trg_cond, time_cond)
                 for couple in activity_combos:
-                    constraint['attributes'] = ', '.join(couple)
+                    constraint['activities'] = ', '.join(couple)
 
                     constraint_str = self.query_constraint(self.log, constraint, consider_vacuity, min_support)
                     if constraint_str:
@@ -153,7 +154,7 @@ class BasicMPDeclareQueryChecking(QueryChecking, ABC):
             else:  # unary template
                 constraint['condition'] = (act_cond, time_cond)
                 for activity in activations_to_check:
-                    constraint['attributes'] = activity
+                    constraint['activities'] = activity
 
                     constraint_str = self.query_constraint(self.log, constraint, consider_vacuity, min_support)
                     if constraint_str:
@@ -198,10 +199,11 @@ class BasicMPDeclareQueryChecking(QueryChecking, ABC):
             assignments.append(tmp_answer)
         return assignments
 
-    def query_constraint(log, constraint, consider_vacuity, min_support):
+
+    def query_constraint(log: LogAnalyzer, constraint: str, consider_vacuity: bool, min_support: int):
         # Fake model composed by a single constraint
         model = DeclModel()
-        model.checkers.append(constraint)
+        model.constraints.append(constraint)
 
         sat_ctr = 0
         for i, trace in enumerate(log):

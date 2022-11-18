@@ -4,14 +4,13 @@ Initializes class QueryCheckingResults
 
 Attributes
 --------
-    BasicMPDeclareQueryChecking
-        inhriting class init
+    dict_results : dict
+        dictionary of conformance checking results
 
 """
-from src.declare4py.models.basic_mp_declare_query_checking import BasicMPDeclareQueryChecking
 
 
-class QueryCheckingResults:
+class BasicQueryCheckingResults:
 
-    def __init__(self):
-        BasicMPDeclareQueryChecking.__init__(self)
+    def __init__(self, dict_results: dict):
+        self.basic_query_checking_results: dict = dict_results
