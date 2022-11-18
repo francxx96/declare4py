@@ -138,7 +138,6 @@ class AspGenerator(LogGenerator):
         for events, traces in self.traces_length.items():
             random_seed = randrange(0, 2 ** 32 - 1)
             self.__generate_asp_trace(lp, events, traces, random_seed)
-        print(self.clingo_output)
         self.__format_to_custom_asp_structure()
         self.__pm4py_log()
 

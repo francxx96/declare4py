@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<log xes.version="1849-2016" xes.features="nested-attributes" xmlns="http://www.xes-standard.org/">
+	<extension name="concept" prefix="concept" uri="http://www.xes-standard.org/concept.xesext" />
+	<trace>
+		<string key="concept:name" value="trace_0" />
+		<event>
+			<string key="concept:name" value="a" />
+			<int key="grade" value="2" />
+			<int key="mark" value="2" />
+			<string key="name" value="v" />
+			<float key="time:timestamp" value="1668796655.223948" />
+		</event>
+		<event>
+			<string key="concept:name" value="b" />
+			<int key="grade" value="2" />
+			<int key="mark" value="5" />
+			<string key="name" value="v" />
+			<float key="time:timestamp" value="1668796655.223956" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="trace_1" />
+		<event>
+			<string key="concept:name" value="a" />
+			<int key="grade" value="2" />
+			<int key="mark" value="2" />
+			<string key="name" value="z" />
+			<float key="time:timestamp" value="1668796655.223962" />
+		</event>
+		<event>
+			<string key="concept:name" value="b" />
+			<int key="grade" value="2" />
+			<int key="mark" value="5" />
+			<string key="name" value="v" />
+			<float key="time:timestamp" value="1668796655.223965" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="trace_2" />
+		<event>
+			<string key="concept:name" value="a" />
+			<int key="grade" value="2" />
+			<int key="mark" value="2" />
+			<string key="name" value="y" />
+			<float key="time:timestamp" value="1668796655.223971" />
+		</event>
+		<event>
+			<string key="concept:name" value="b" />
+			<int key="grade" value="2" />
+			<int key="mark" value="5" />
+			<string key="name" value="v" />
+			<float key="time:timestamp" value="1668796655.223973" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="trace_3" />
+		<event>
+			<string key="concept:name" value="a" />
+			<int key="grade" value="2" />
+			<int key="mark" value="2" />
+			<string key="name" value="v" />
+			<float key="time:timestamp" value="1668796655.223977" />
+		</event>
+		<event>
+			<string key="concept:name" value="b" />
+			<int key="grade" value="2" />
+			<int key="mark" value="2" />
+			<string key="name" value="v" />
+			<float key="time:timestamp" value="1668796655.223979" />
+		</event>
+		<event>
+			<string key="concept:name" value="b" />
+			<int key="grade" value="2" />
+			<int key="mark" value="2" />
+			<string key="name" value="v" />
+			<float key="time:timestamp" value="1668796655.223981" />
+		</event>
+	</trace>
+</log>
