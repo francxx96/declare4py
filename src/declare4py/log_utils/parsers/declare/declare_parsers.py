@@ -39,7 +39,7 @@ class DeclareParseDetector:
         :param line: declare line
         :return:
         """
-        x = re.search(r"^(?!bind)([a-zA-Z_,0-9: ]+) *(: *[\w, ]+)$", line, re.MULTILINE)
+        x = re.search(r"^(?!bind)([a-zA-Z_,0-9.?: ]+) *(: *[\w,.? ]+)$", line, re.MULTILINE)
         if x is None:
             return False
         groups_len = len(x.groups())
@@ -275,9 +275,9 @@ class DeclareParser(ModelParser):
                         }
                         if template.supports_cardinality:
                             tmp['n'] = 1 if not cardinality else int(cardinality)
-
+                            cardinality = tmp['n']
                         decl_model.constraints.append(tmp)
-
+                        dpm.add_template(line.strip(), template, cardinality)
         decl_model.set_constraints()
         dpm.template_constraints = decl_model.constraints
         return decl_model

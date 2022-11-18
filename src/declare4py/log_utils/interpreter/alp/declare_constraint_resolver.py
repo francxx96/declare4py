@@ -4,70 +4,17 @@ import re
 import typing
 import boolean
 
-from src.declare4py.models.log_generation.declare_model import ConstraintTemplates, DeclareEventValueType
-
-# class ConstrainTemplates:
-CONSTRAINTS_TEMPLATES = {
-
-    "Init": {
-        "binary": False, "negative": False, "cardinality": False,
-        "semantic": "First task is A"
-    },
-
-    "Existence": {
-        "binary": False, "negative": False, "cardinality": True,
-        "semantic": "Task A should be executed. If cardinality defined, should be executed n or more times."
-    },
-    "Absence": {
-        "binary": False, "negative": False, "cardinality": True,
-        "semantic": "Task A should not be executed. If cardinality defined, should be executed n times or less"
-    },
-    "Exactly": {
-        "binary": False, "negative": False, "cardinality": True,
-        "semantic": "Task A should be executed (exactly) N times"
-    },
-
-    "Choice": {"binary": True, "negative": False, "cardinality": False,
-               "semantic": "Task A or task B should be executed (or both)"},
-    "ExclusiveChoice": {"binary": True, "negative": False, "cardinality": False,
-                        "semantic": "Task A or task B should be executed, but not both"},
-    "RespondedExistence": {"binary": True, "negative": False, "cardinality": False,
-                           "semantic": "If task A executed, task B executed as well"},
-    "Response": {"binary": True, "negative": False, "cardinality": False,
-                 "semantic": "If task A executed, task B executed after A"},
-    "AlternateResponse": {"binary": True, "negative": False, "cardinality": False,
-                          "semantic": "If task A executed, task B executed after A, without other A in between "},
-    "ChainResponse": {"binary": True, "negative": False, "cardinality": False,
-                      "semantic": "If task A executed, task B executed next"},
-    "Precedence": {"binary": True, "negative": False, "cardinality": False,
-                   "semantic": "If task A executed, task B was executed before A"},
-    "AlternatePrecedence": {"binary": True, "negative": False, "cardinality": False,
-                            "semantic": "If task A executed, task B was executed before A, without other A in between"},
-    "CoExistence": {"binary": True, "negative": False, "cardinality": False, "semantic": "...."},
-    "NotCoExistence": {"binary": True, "negative": True, "cardinality": False, "semantic": "...."},
-    "ChainPrecedence": {"binary": True, "negative": False, "cardinality": False,
-                        "semantic": "If task A executed, previous executed task was B"},
-
-    "NotRespondedExistence": {"binary": True, "negative": True, "cardinality": False,
-                              "semantic": "If task A executed, task B is not executed"},
-    "NotResponse": {"binary": True, "negative": True, "cardinality": False,
-                    "semantic": "If task A executed, task B will not be executed after A"},
-    "NotPrecedence": {"binary": True, "negative": True, "cardinality": False,
-                      "semantic": "If task A executed, task B was not executed before A"},
-    "NotChainResponse": {"binary": True, "negative": True, "cardinality": False,
-                         "semantic": "If task A executed, task B is not executed next"},
-    "NotChainPrecedence": {"binary": True, "negative": True, "cardinality": False,
-                           "semantic": "If task A executed, previous executed task was not B"},
-}
+from src.declare4py.log_utils.parsers.declare.decl_model import DeclareTemplateModalDict, DeclareModelAttributeType
 
 
-class DeclareConstraintConditionResolver:
+class DeclareModalConstraintConditionResolver:
 
-    def resolve_to_asp(self, ct: ConstraintTemplates, attrs: dict, idx: int = 0):
+    def resolve_to_asp(self, ct: DeclareTemplateModalDict, attrs: dict, idx: int = 0):
         ls = []
-        if ct.active_cond:
-            ls.append('activation({},{}).'.format(idx, ct.events_list[0].lower()))
-            exp, n2c, c2n = self.parsed_condition('activation', ct.active_cond)
+        activation, target_cond, time = ct.get_conditions()
+        if activation:
+            ls.append('activation({},{}).'.format(idx, ct.activities[0].lower()))
+            exp, n2c, c2n = self.parsed_condition('activation', activation)
             conditions = set(n2c.keys())
             if exp.isliteral:
                 ls.append('activation_condition({},T):- {}({},T).'.format(idx, str(exp), idx))
@@ -78,11 +25,10 @@ class DeclareConstraintConditionResolver:
                 s = self.condition_to_asp(n, c, idx, attrs)
                 if s and len(s) > 0:
                     ls = ls + s
-        if ct.correlation_cond:
-            ls.append("")
-            target = ct.events_list[1]
+        if target_cond:
+            target = ct.activities[1]
             ls.append('target({},{}).'.format(idx, target.lower()))
-            exp, n2c, c2n = self.parsed_condition('correlation', ct.correlation_cond)
+            exp, n2c, c2n = self.parsed_condition('correlation', target_cond)
             conditions = set(n2c.keys())
             if exp.isliteral:
                 ls.append('correlation_condition({},T):- {}({},T).'.format(idx, str(exp), idx))
@@ -109,8 +55,9 @@ class DeclareConstraintConditionResolver:
             attr = attr.group(0).strip()
             if attr not in attrs:
                 raise ValueError(f"Unable to find the attribute \"{attr}\" in condition \"{cond}\". name: \"{name}\"")
-            attr_obj = attrs[attr][0]
-            if attr_obj.typ == DeclareEventValueType.ENUMERATION:  # ["is_range_typ"]:  # Enumeration
+            attr_obj = attrs[attr]
+            value_typ = attr_obj["value_type"]
+            if value_typ == DeclareModelAttributeType.ENUMERATION:  # ["is_range_typ"]:  # Enumeration
                 cond_type = cond.split(' ')[1]
                 if cond_type == 'is':
                     s = 'assigned_value({},{},T)'.format(attr, string.split(' ')[2])
@@ -128,7 +75,9 @@ class DeclareConstraintConditionResolver:
                         asp_cond = asp_cond + 'not assigned_value({},{},T),'.format(attr, value)
                     asp_cond = asp_cond[:-1]
                     ls.append('{} :- {}.'.format(name, asp_cond))
-            elif attr_obj.typ == DeclareEventValueType.INTEGER:
+            elif value_typ == DeclareModelAttributeType.INTEGER or value_typ == DeclareModelAttributeType.FLOAT or \
+                    value_typ == DeclareModelAttributeType.INTEGER_RANGE or \
+                    value_typ == DeclareModelAttributeType.FLOAT_RANGE:
                 relations = ['<=', '>=', '=', '<', '>']
                 for rel in relations:
                     if rel in cond:
@@ -138,8 +87,8 @@ class DeclareConstraintConditionResolver:
         return ls
 
     def parsed_condition(self, condition: typing.Literal['activation', 'correlation'], string: str):
-        string = re.sub('\)', ' ) ', string)
-        string = re.sub('\(', ' ( ', string)
+        string = re.sub(r'\)', ' ) ', string)
+        string = re.sub(r'\(', ' ( ', string)
         string = string.strip()
         string = re.sub(' +', ' ', string)
         string = re.sub('is not', 'is_not', string)
@@ -166,9 +115,9 @@ class DeclareConstraintConditionResolver:
         for i in range(len(form_list)):
             el = form_list[i]
             if '(' in el and ')' in el:
-                el = re.sub('\( ', '(', el)
+                el = re.sub(r'\( ', '(', el)
                 el = re.sub(', ', ',', el)
-                el = re.sub(' \)', ')', el)
+                el = re.sub(r' \)', ')', el)
                 form_list[i] = el
 
         keywords = {'and', 'or', '(', ')'}
@@ -227,52 +176,8 @@ class DeclareConstraintConditionResolver:
                 arg_name = expression_to_name(arg)
             args_name = args_name[:-1]  # remove last comma
             lp_st.append('{} :- {}.'.format(cond_name, args_name))
-            for arg in formula_args:  # breadth-first (è più costoso della depth ma è più elegante, è la stessa della disgiunzione)
+            for arg in formula_args:
                 arg_name = expression_to_name(arg)
                 self.tree_conditions_to_asp(condition, arg, no_params(arg_name), i, lp_st)
         return lp_st
 
-
-class DeclareConstraintResolver:
-    CONSTRAINTS_TEMPLATES_PATTERN = r"^(.*)\[(.*)\]\s*(.*)$"
-
-    def __init__(self):
-        self.templates_name = CONSTRAINTS_TEMPLATES.keys()
-
-    def parse_template(self, line) -> None | ConstraintTemplates:
-        compiler = re.compile(self.CONSTRAINTS_TEMPLATES_PATTERN)
-        al = compiler.fullmatch(line)
-        if al is None:
-            return
-        tmp_name = al.group(1).replace(" ", "").strip()  # template names: Response, Existence...
-        tmp_name = tmp_name.replace("-", "").strip()  # template names: Co-Existence...
-        if tmp_name not in self.templates_name:
-            raise ValueError(f"Constraint template {tmp_name} is not supported!")
-        events = al.group(2).strip().split(",")  # A, B
-        events = [e.strip() for e in events]  # [A, B]
-        conditions = al.group(3)  # |A.grade > 2 and A.name in (x, y) or A.grade < 2 and A.name in (z, v) |B.grade > 5 |1,5,s
-        ct = ConstraintTemplates()
-        ct.template_name = str(tmp_name)
-        ct.events_list = events
-        ct.conditions = str(conditions)
-        self.__parse_constraint_conditions(conditions, ct)
-        return ct
-
-    def __parse_constraint_conditions(self, conditions_part: str, ct_model: ConstraintTemplates):
-        conds_list = conditions_part.strip().strip("|").split("|")
-        conds_len = len(conds_list)
-        if conds_len >= 1:
-            active = conds_list[0].strip()
-            if active and len(active) > 0:
-                ct_model.active_cond = active
-        if conds_len >= 2:
-            correlated = conds_list[1].strip()
-            if correlated and len(correlated) > 0:
-                ct_model.correlation_cond = correlated
-        if conds_len == 3:
-            time = conds_list[2].strip()
-            if time and len(time) > 0:
-                ct_model.ts = time
-        if conds_len > 3:  # TODO: what to in this case
-            raise ValueError(f"Unable to parse the line due to the exceeds conditions (> 3)")
-        return ct_model

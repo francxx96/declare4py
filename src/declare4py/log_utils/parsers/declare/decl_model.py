@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 import json
+import re
 from enum import Enum
 
 from abc import ABC, abstractmethod
 from src.declare4py.log_utils.ltl_model import LTLModel
+from src.declare4py.mp_constants import Template
 
 
 class DeclareModelCustomDict(dict, ABC):
@@ -73,31 +77,98 @@ class DeclareModelAttributeType(str, Enum):
 class DeclareModelEvent(DeclareModelCustomDict):
     name: str
     event_type: str
-    attribute: dict[str, dict]
+    attributes: dict[str, dict]
 
     def __init__(self):
         super().__init__()
         self.name = ""
         self.event_type = ""
-        self.attribute = {}
+        self.attributes = {}
         self.update_props()
 
     def update_props(self):
         self.key_value["name"] = self.name
         self.key_value["event_type"] = self.event_type
-        self.key_value["attribute"] = self.attribute
+        self.key_value["attributes"] = self.attributes
+
+
+class DeclareTemplateModalDict(DeclareModelCustomDict):
+    template: Template | None
+    template_name: str | None
+    activities: str | None
+    condition: [str] | None
+    template_line: str | None
+    condition_line: str | None  # |A.grade < 2  | T.mark > 2|1,5,s
+
+    def __init__(self):
+        super().__init__()
+        self.template = None
+        self.activities = None
+        self.condition = None
+        self.template_name = None
+
+    def get_conditions(self):
+        return self.get_active_condition(), self.get_target_condition(), self.get_time_condition()
+
+    def get_active_condition(self):
+        if len(self.condition) > 0:
+            return self.condition[0]
+        return None
+
+    def get_target_condition(self):
+        if len(self.condition) > 1:
+            cond_at_1_idx = self.condition[1]
+            time_int = r"^[\d.]+,?([\d.]+)?[,]?(s|m|d|h)$"
+            is_matched = re.search(time_int, cond_at_1_idx, re.IGNORECASE)
+            if is_matched:
+                return None
+            return self.condition[1]
+
+    def get_time_condition(self):
+        if self.contains_interval_condition():
+            return self.condition[2]
+        return None
+
+    def contains_interval_condition(self) -> bool:
+        if self.condition is None:
+            return False
+        len_ = len(self.condition)
+        if len_ != 3:
+            return False
+        return True
+        # if self.condition_line is None:
+        #     return False
+        # parts = self.condition_line.strip("|").split("|")
+        # if len(parts) == 3:
+        #     time_int = r"^[\d.]+,?([\d.]+)?[,]?(s|m|d|h)$"
+        #     return re.search(time, parts, re.IGNORECASE)
+        # return False
+
+    def update_props(self):
+        """
+        Updates the _dict, so it has updated values when any dict op is occurred
+        Returns
+        -------
+
+        """
+        self.key_value["template"] = self.template
+        self.key_value["activities"] = self.activities
+        self.key_value["condition"] = self.condition
+        self.key_value["template_name"] = self.template_name
 
 
 class DeclareParsedModel(DeclareModelCustomDict):
     attributes_list: dict[str, dict] = []
     events: dict[str, DeclareModelEvent] = {}
     template_constraints = {}
+    templates: [DeclareTemplateModalDict] = []
 
     def __init__(self):
         super().__init__()
         self.events = {}
         self.attributes_list = {}
         self.template_constraints = {}
+        self.templates = []
         self.update_props()
 
     def add_event(self, name: str, event_type: str) -> None:
@@ -135,10 +206,10 @@ class DeclareParsedModel(DeclareModelCustomDict):
         if event_name not in self.events:
             raise ValueError(f"Unable to find the event or activity {event_name}")
         dme: DeclareModelEvent = self.events[event_name]
-        attrs = dme.attribute
+        attrs = dme.attributes
         if attrs is None:
             attrs = {}
-            dme.attribute = attrs
+            dme.attributes = attrs
         if attr_name in self.attributes_list:
             attrs[attr_name] = self.attributes_list[attr_name]  # saving the same reference. Same attr cannot have two values
         else:
@@ -170,6 +241,37 @@ class DeclareParsedModel(DeclareModelCustomDict):
         attribute["value"] = attr_value
         attribute["value_type"] = attr_type
 
+    def add_template(self, line: str, template: Template, cardinality: str):
+        templt = DeclareTemplateModalDict()
+        self.templates.append(templt)
+        templt.template = template
+        templt.template_name = template.templ_str
+        templt.template_line = line
+        if template.supports_cardinality:
+            templt.template_name += str(cardinality)
+        compiler = re.compile(r"^(.*)\[(.*)\]\s*(.*)$")
+        al = compiler.fullmatch(line)
+        if al is None:
+            return
+        if len(al.group()) >= 2:
+            events = al.group(2).strip().split(",")  # A, B
+            events = [e.strip() for e in events]  # [A, B]
+            templt.activities = events
+        if len(al.group()) >= 3:
+            conditions = al.group(3).strip()
+            if len(conditions) == 0:
+                return
+            if len(conditions) > 1 and not conditions.startswith("|"):
+                raise SyntaxError(f"Unable to parse template {template.templ_str}'s conditions."
+                                  f" Conditions should start with \"|\"")
+            templt.condition_line = conditions
+            conditions = conditions.strip("|")
+            conds_list = conditions.split("|")
+            templt.condition = [cl.strip() for cl in conds_list]
+            conds_len = len(conds_list)
+            if conds_len > 3:
+                raise ValueError(f"Unable to parse the line due to the exceeds conditions (> 3)")
+
     def update_props(self):
         """
         Updates the _dict, so it has updated values when any dict op is occurred
@@ -180,6 +282,7 @@ class DeclareParsedModel(DeclareModelCustomDict):
         self.key_value["events"] = self.events
         self.key_value["attributes_list"] = self.attributes_list
         self.key_value["template_constraints"] = self.template_constraints
+        self.key_value["templates"] = self.templates
 
 
 class DeclModel(LTLModel):
@@ -190,7 +293,7 @@ class DeclModel(LTLModel):
         self.activities = []
         self.serialized_constraints = []
         self.constraints = []
-        self.parsed_model = {}
+        self.parsed_model = DeclareParsedModel()
 
     def set_constraints(self):
         constraint_str = ''
@@ -204,3 +307,8 @@ class DeclModel(LTLModel):
 
     def get_decl_model_constraints(self):
         return self.serialized_constraints
+
+    def __str__(self):
+        st = f"""{{"activities": {self.activities}, "serialized_constraints": {self.serialized_constraints},\
+        "constraints": {self.constraints}, "parsed_model": {self.parsed_model.to_json()} }} """
+        return st.replace("'", '"')

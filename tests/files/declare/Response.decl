@@ -8,5 +8,7 @@ mark: integer between 1 and 5
 org:res: group1:v1, group1:v2, group3:v1
 name: x, y, z, v
 Existence [A] | | |
-Response[A, B] |A.grade > 2 and A.name in (x, y)  or A.grade < 3 and A.name in (z, v) |T.grade > 5 |1,5,s
+#Response[A, B] |A.grade > 2 and A.name in (x, y)  or A.grade < 3 and A.name in (z, v) |T.grade > 5 |1,5,s
 Response[A, B] |A.grade > 2  | |1,5,s
+Response[A, B] |A.grade < 2  | T.mark > 2|1,5,s
+Chain Response[A, B] |A.grade < 2  | |1,5,s

@@ -21,7 +21,6 @@ class Distributor:
 
     def uniform_distribution(self, min_num, max_num, traces_num: int):
         probabilities = self.__get_uniform_probabilities((max_num + 1) - min_num)
-        print(probabilities)
         return self.custom_distribution(min_num, max_num, traces_num, probabilities)
 
     def normal_distribution(self, mu, sigma, num_traces: int):

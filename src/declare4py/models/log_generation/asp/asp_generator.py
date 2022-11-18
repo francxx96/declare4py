@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import collections
 import json
-import os
 import typing
 from random import randrange
 
@@ -13,10 +12,12 @@ from pm4py.objects.log import obj as lg
 from pm4py.objects.log.exporter.xes import exporter
 
 from src.declare4py.core.log_generator import LogGenerator
+from src.declare4py.log_utils.interpreter.alp.alp_interpreter import ALPInterpreter
 from src.declare4py.log_utils.parsers.declare.decl_model import DeclModel
 from src.declare4py.log_utils.log_analyzer import LogAnalyzer
-from src.declare4py.models.log_generation.declare2Lp import Declare2lp
-from src.declare4py.models.log_generation.distribution import Distributor
+from src.declare4py.models.log_generation.asp.alp_encoding import ALPEncoding
+from src.declare4py.models.log_generation.asp.alp_template import ALPTemplate
+from src.declare4py.models.log_generation.asp.distribution import Distributor
 from datetime import datetime
 
 
@@ -110,41 +111,45 @@ class AspCustomLogModel:
 class AspGenerator(LogGenerator):
 
     def __init__(self, num_traces: int, min_event: int, max_event: int,
-                 decl_model: DeclModel, template_path: str, encoding_path: str,
+                 decl_model: DeclModel,  # template_path: str, encoding_path: str,
                  log: LogAnalyzer = None,
                  distributor_type: typing.Literal["uniform", "normal", "custom"] = "uniform",
                  custom_probabilities: typing.Optional[typing.List[float]] = None
                  ):
         super().__init__(num_traces, min_event, max_event, log, decl_model)
-        self.template_path = template_path
-        self.encoding_path = encoding_path
+        # self.template_path = template_path
+        # self.encoding_path = encoding_path
         self.clingo_output = []
         self.asp_custom_structure: AspCustomLogModel | None = None
         d = Distributor()
         self.traces_length: collections.Counter | None = d.distribution(min_event, max_event, num_traces,
                                                                         distributor_type, custom_probabilities)
+        self.alp_encoding = ALPEncoding().value
+        self.alp_template = ALPTemplate().value
 
-    def __decl_model2lp_file(self):
-        # with open(self.decl_model_path, "r") as file:
-        #     d2a = DeclareParser(file.read())
-        #     dm = d2a.parse()
-        lp_model = Declare2lp().from_decl(self.decl_model)
-        lp = lp_model.__str__()
-        filename = "generated.lp"
-        # with tempfile.NamedTemporaryFile() as tmp:  # TODO: improve it
-        with open(filename, "w+") as tmp:
-            tmp.write(lp)
-        return filename
+    def get_lp(self) -> str:
+        lp_model = ALPInterpreter().from_decl_model(self.decl_model)
+        lp = lp_model.to_str()
+        return lp
 
     def run(self):
-        decl2lp_file = self.__decl_model2lp_file()
+        lp = self.get_lp()
         self.clingo_output = []
         for events, traces in self.traces_length.items():
             random_seed = randrange(0, 2 ** 32 - 1)
-            self.__generate_asp_trace(decl2lp_file, events, traces, random_seed)
+            self.__generate_asp_trace(lp, events, traces, random_seed)
+        print(self.clingo_output)
         self.__format_to_custom_asp_structure()
         self.__pm4py_log()
-        os.remove(decl2lp_file)  # removes the temporary decl->lp modal file created
+
+    def __generate_asp_trace(self, lp: str, num_events: int, num_traces: int,
+                             seed: int, freq: float = 0.9):
+        ctl = clingo.Control([f"-c t={num_events}", f"{num_traces}", f"--seed={seed}", f"--rand-freq={freq}"])
+        ctl.add(self.alp_encoding)
+        ctl.add(self.alp_template)
+        ctl.add(lp)
+        ctl.ground([("base", [])], context=self)
+        ctl.solve(on_model=self.__handle_clingo_result)
 
     def __format_to_custom_asp_structure(self):
         self.asp_custom_structure = AspCustomLogModel()
@@ -155,22 +160,11 @@ class AspGenerator(LogGenerator):
             asp_model.traces.append(trace_model)
             i = i + 1
 
-    def __generate_asp_trace(self, decl_model_lp_file: str, num_events: int, num_traces: int,
-                             seed: int, freq: float = 0.9, ):
-        ctl = clingo.Control(
-            [f"-c t={num_events}", f"{num_traces}", f"--seed={seed}", f"--rand-freq={freq}"])  # TODO: add parameters
-        ctl.load(self.encoding_path)
-        ctl.load(self.template_path)
-        ctl.load(decl_model_lp_file)
-        ctl.ground([("base", [])], context=self)
-        ctl.solve(on_model=self.__handle_clingo_result)
-
     def __handle_clingo_result(self, output: clingo.solving.Model):
         symbols = output.symbols(shown=True)
         self.clingo_output.append(symbols)
 
     def __pm4py_log(self):
-
         self.log_analyzer.log = lg.EventLog()
         self.log_analyzer.log.extensions["concept"] = {}  # TODO: add which extensions?
         self.log_analyzer.log.extensions["concept"]["name"] = lg.XESExtension.Concept.name
