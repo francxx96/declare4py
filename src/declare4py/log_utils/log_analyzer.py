@@ -1,9 +1,14 @@
+from _future_ import annotations
+
 import pandas as pd
 import pm4py
 from mlxtend.frequent_patterns import fpgrowth, apriori
+from mlxtend.preprocessing import TransactionEncoder
+from pm4py.objects.log import obj as lg
 
 
 class LogAnalyzer:
+
     """
         Wrapper that collects the input log, the computed binary encoding and frequent item sets
         for the input log.
@@ -15,15 +20,34 @@ class LogAnalyzer:
         log_length : int
             the trace number of the input log
         frequent_item_sets : DataFrame
-        list of the most frequent item sets found along the log traces, together with their support and length
+            list of the most frequent item sets found along the log traces, together with their support and length
+        binary_encoded_log : DataFrame
+                the binary encoded version of the input log
     """
 
     def __init__(self):
-        self.log = None
+        self.log: lg.EventLog = None
         self.log_length = None
         self.frequent_item_sets = None
+        self.binary_encoded_log = None
 
     # LOG MANAGEMENT UTILITIES
+    def get_trace_keys(self) -> list[tuple[int, str]]:
+        """
+        Return the name of each trace, along with the position in the log.
+
+        Returns
+        -------
+        trace_ids
+            list containing the position in the log and the name of the trace.
+        """
+        if self.log is None:
+            raise RuntimeError("You must load a log before.")
+        trace_ids = []
+        for trace_id, trace in enumerate(self.log):
+            trace_ids.append((trace_id, trace.attributes["concept:name"]))
+        return trace_ids
+
     def parse_xes_log(self, log_path: str) -> None:
         """
         Set the 'log' EventLog object and the 'log_length' integer by reading and parsing the log corresponding to
@@ -107,22 +131,10 @@ class LogAnalyzer:
         frequent_itemsets['length'] = frequent_itemsets['itemsets'].apply(lambda x: len(x))
         if len_itemset is None:
             self.frequent_item_sets = frequent_itemsets
+        if len_itemset < 1:
+            raise RuntimeError(f"The parameter len_itemset must be greater than 0.")
         else:
             self.frequent_item_sets = frequent_itemsets[(frequent_itemsets['length'] <= len_itemset)]
-
-    def get_log_length(self) -> int:
-        """
-        Return the number of traces contained in the log.
-
-        Returns
-        -------
-        log_length
-            the length of the log.
-        """
-        if self.log is None:
-            raise RuntimeError("You must load a log before.")
-        return self.log_length
-
 
     def get_log(self) -> pm4py.objects.log.obj.EventLog:
         """
@@ -136,7 +148,6 @@ class LogAnalyzer:
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         return self.log
-
 
     def get_log_alphabet_payload(self) -> set[str]:
         """
@@ -155,7 +166,6 @@ class LogAnalyzer:
                 resources.add(event["org:group"])
         return resources
 
-
     def get_log_alphabet_activities(self):
         """
         Return the set of activities that are in the log.
@@ -173,18 +183,46 @@ class LogAnalyzer:
                 activities.add(event["concept:name"])
         return list(activities)
 
-    def get_frequent_item_sets(self) -> pd.DataFrame:
+    def log_encoding(self, dimension: str = 'act') -> pd.DataFrame:
         """
-        Return the set of extracted frequent item sets.
+        Return the log binary encoding, i.e. the one-hot encoding stating whether an attribute is contained
+        or not inside each trace of the log.
+
+        Parameters
+        ----------
+        dimension : str, optional
+            choose 'act' to perform the encoding over activity names, 'payload' over resources (default 'act').
 
         Returns
         -------
-        frequent_item_sets
-            the set of extracted frequent item sets.
+        binary_encoded_log
+            the one-hot encoding of the input log, made over activity names or resources depending on 'dimension' value.
+        """
+        if self.log is None:
+            raise RuntimeError("You must load a log before.")
+        te = TransactionEncoder()
+        if dimension == 'act':
+            dataset = self.activities_log_projection()
+        elif dimension == 'payload':
+            dataset = self.resources_log_projection()
+        else:
+            raise RuntimeError(f"{dimension} dimension not supported. Choose between 'act' and 'payload'")
+        te_ary = te.fit(dataset).transform(dataset)
+        self.binary_encoded_log = pd.DataFrame(te_ary, columns=te.columns_)
+        return self.binary_encoded_log
+
+    def get_binary_encoded_log(self) -> pd.DataFrame:
+        """
+        Return the one-hot encoding of the log.
+
+        Returns
+        -------
+        binary_encoded_log
+            the one-hot encoded log.
         """
         if self.log is None:
             raise RuntimeError("You must load a log before.")
         if self.frequent_item_sets is None:
             raise RuntimeError("You must run the item set extraction algorithm before.")
 
-        return self.frequent_item_sets
+        return self.binary_encoded_log

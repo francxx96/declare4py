@@ -1,59 +1,197 @@
-import pandas as pd
-from mlxtend.preprocessing import TransactionEncoder
+from _future_ import annotations
+
+import re
+
+from src.declare4py.log_utils.parsers.declare.decl_model import DeclModel
+from src.declare4py.mp_constants import Template
 
 
 class EncoderDeclare:
-    """
-            Wrapper that collects the computed binary encoding for the input log.
 
-            Attributes
-            ----------
-            binary_encoded_log : DataFrame
-                the binary encoded version of the input log
-        """
     def __init__(self):
-        self.binary_encoded_log = None
+        self.model = None
 
-    def log_encoding(self, dimension: str = 'act') -> pd.DataFrame:
+    def parse_decl_model(self, model_path) -> None:
         """
-        Return the log binary encoding, i.e. the one-hot encoding stating whether an attribute is contained
-        or not inside each trace of the log.
+        Parse the input DECLARE model.
 
         Parameters
         ----------
-        dimension : str, optional
-            choose 'act' to perform the encoding over activity names, 'payload' over resources (default 'act').
+        model_path : str
+            File path where the DECLARE model is stored.
+        """
+        self.model = self.parse_decl_from_file(model_path)
+
+    def get_supported_templates(self) -> tuple[str, ...]:
+        """
+        Return the DECLARE templates supported by Declare4Py.
 
         Returns
         -------
-        binary_encoded_log
-            the one-hot encoding of the input log, made over activity names or resources depending on 'dimension' value.
+        supported_templates
+            tuple of names of the supported DECLARE templates.
         """
-        if self.log is None:
-            raise RuntimeError("You must load a log before.")
-        te = TransactionEncoder()
-        if dimension == 'act':
-            dataset = self.activities_log_projection()
-        elif dimension == 'payload':
-            dataset = self.resources_log_projection()
-        else:
-            raise RuntimeError(f"{dimension} dimension not supported. Choose between 'act' and 'payload'")
-        te_ary = te.fit(dataset).transform(dataset)
-        self.binary_encoded_log = pd.DataFrame(te_ary, columns=te.columns_)
-        return self.binary_encoded_log
+        return self.supported_templates
 
-    def get_binary_encoded_log(self) -> pd.DataFrame:
-        """
-        Return the one-hot encoding of the log.
+    def parse_data_cond(self, cond):
+        try:
+            cond = cond.strip()
+            if cond == "":
+                return "True"
 
-        Returns
-        -------
-        binary_encoded_log
-            the one-hot encoded log.
-        """
-        if self.log is None:
-            raise RuntimeError("You must load a log before.")
-        if self.frequent_item_sets is None:
-            raise RuntimeError("You must run the item set extraction algorithm before.")
+            # List containing translations from decl format to python
+            py_cond = ""
+            fill_enum_set = False
 
-        return self.binary_encoded_log
+            while cond:
+                if cond.startswith("(") or cond.startswith(")"):
+                    py_cond = py_cond + " " + cond[0]
+                    cond = cond[1:].lstrip()
+                    fill_enum_set = py_cond.endswith(" in (")
+
+                else:
+                    if not fill_enum_set:
+                        next_word = re.split(r'[\s()]+', cond)[0]
+                        cond = cond[len(next_word):].lstrip()
+
+                        if re.match(r'^[AaTt]\.', next_word):
+                            py_cond = py_cond + " " + '"' + next_word[2:] + '" in ' + next_word[0] \
+                                      + " and " + next_word[0] + '["' + next_word[2:] + '"]'
+
+                        elif next_word.lower() == "is":
+                            if cond.lower().startswith("not"):
+                                cond = cond[3:].lstrip()
+                                py_cond = py_cond + " !="
+                            else:
+                                py_cond = py_cond + " =="
+
+                            tmp = []
+                            while cond and not (cond.startswith(')') or cond.lower().startswith('and')
+                                                or cond.lower().startswith('or')):
+                                w = re.split(r'[\s()]+', cond)[0]
+                                cond = cond[len(w):].lstrip()
+                                tmp.append(w)
+
+                            attr = " ".join(tmp)
+                            py_cond += ' "' + attr + '"'
+
+                        elif next_word == "=":
+                            py_cond = py_cond + " =="
+
+                        elif next_word.lower() == "and" or next_word.lower() == "or":
+                            py_cond = py_cond + " " + next_word.lower()
+
+                        elif next_word.lower() == "same":
+                            tmp = []
+                            while cond and not (cond.startswith(')') or cond.lower().startswith('and')
+                                                or cond.lower().startswith('or')):
+                                w = re.split(r'[\s()]+', cond)[0]
+                                cond = cond[len(w):].lstrip()
+                                tmp.append(w)
+
+                            attr = " ".join(tmp)
+                            py_cond = py_cond + " " + attr + " in A and " + attr + " in T " \
+                                      + 'and A["' + attr + '"] == T["' + attr + '"]'
+
+                        elif next_word.lower() == "different":
+                            tmp = []
+                            while cond and not (cond.startswith(')') or cond.lower().startswith('and')
+                                                or cond.lower().startswith('or')):
+                                w = re.split(r'[\s()]+', cond)[0]
+                                cond = cond[len(w):].lstrip()
+                                tmp.append(w)
+
+                            attr = " ".join(tmp)
+                            py_cond = py_cond + " " + attr + " in A and " + attr + " in T " \
+                                      + 'and A["' + attr + '"] != T["' + attr + '"]'
+
+                        elif next_word.lower() == "true":
+                            py_cond = py_cond + " True"
+
+                        elif next_word.lower() == "false":
+                            py_cond = py_cond + " False"
+
+                        else:
+                            py_cond = py_cond + " " + next_word
+
+                    else:
+                        end_idx = cond.find(')')
+                        enum_set = re.split(r',\s+', cond[:end_idx])
+                        enum_set = [x.strip() for x in enum_set]
+
+                        py_cond = py_cond + ' "' + '", "'.join(enum_set) + '"'
+                        cond = cond[end_idx:].lstrip()
+
+            return py_cond.strip()
+
+        except Exception:
+            raise SyntaxError
+
+    def parse_time_cond(self, condition):
+        try:
+            if condition.strip() == "":
+                condition = "True"
+                return condition
+
+            if re.split(r'\s*,\s*', condition.strip())[2].lower() == "s":
+                time_measure = "seconds"
+            elif re.split(r'\s*,\s*', condition.strip())[2].lower() == "m":
+                time_measure = "minutes"
+            elif re.split(r'\s*,\s*', condition.strip())[2].lower() == "h":
+                time_measure = "hours"
+            elif re.split(r'\s*,\s*', condition.strip())[2].lower() == "d":
+                time_measure = "days"
+            else:
+                time_measure = None
+
+            min_td = "timedelta(" + time_measure + "=float(" + str(condition.split(",")[0]) + "))"
+            max_td = "timedelta(" + time_measure + "=float(" + str(condition.split(",")[1]) + "))"
+
+            condition = min_td + ' <= abs(A["time:timestamp"] - T["time:timestamp"]) <= ' + max_td
+            return condition
+
+        except Exception:
+            raise SyntaxError
+
+    def parse_decl_from_file(self, path):
+        fo = open(path, "r+")
+        lines = fo.readlines()
+        fo.close()
+        return path.parse_decl(lines)
+
+    def parse_decl_from_string(self, decl_string):
+        return decl_string.parse_decl(decl_string.split("\n"))
+
+    def parse_decl(self, lines):
+        result = DeclModel()
+
+        for line in lines:
+            line = line.strip()
+
+            split = line.split(maxsplit=1)
+            if split[0].strip() == 'activity':
+                result.activities.append(split[1].strip())
+                continue
+
+            split = line.split("[", 1)
+            template_search = re.search(r'(^.+?)(\d*$)', split[0])
+
+            if template_search is not None:
+                template_str, cardinality = template_search.groups()
+                template = Template.get_template_from_string(template_str)
+
+                if template is not None:
+                    attributes = split[1].split("]")[0]
+                    tmp = {
+                        "template": template,
+                        "attributes": attributes,
+                        "condition": re.split(r'\s+\|', line)[1:]
+                    }
+
+                    if template.supports_cardinality:
+                        tmp['n'] = 1 if not cardinality else int(cardinality)
+
+                    result.checkers.append(tmp)
+
+        result.set_constraints()
+        return result

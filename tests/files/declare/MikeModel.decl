@@ -1,0 +1,13 @@
+activity Driving_Test
+bind Driving_Test: Driver, Grade
+activity Getting_License
+bind Getting_License: Driver
+activity Resit
+bind Resit: Driver, Grade
+activity Test_Failed
+bind Test_Failed: Driver
+Driver: Fabrizio, Mike, Marlon, Raimundas
+Grade: integer between 1 and 5
+Response[Driving_Test, Getting_License] |A.Grade>2 | |
+Response[Driving_Test, Resit] |A.Grade<=2 | |
+Response[Driving_Test, Test_Failed] |A.Grade<=2 | |
