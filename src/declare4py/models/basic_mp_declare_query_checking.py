@@ -9,7 +9,7 @@ from src.declare4py.api_functions import check_trace_conformance
 from src.declare4py.core.query_checking import QueryChecking
 from src.declare4py.log_utils.decl_model import DeclModel
 from src.declare4py.log_utils.log_analyzer import LogAnalyzer
-from src.declare4py.models.query_checking_results import BasicQueryCheckingResults
+from src.declare4py.models.basic_query_checking_results import BasicQueryCheckingResults
 from src.declare4py.mp_constants import Template, TraceState
 
 """
