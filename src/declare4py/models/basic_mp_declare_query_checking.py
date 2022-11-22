@@ -7,8 +7,8 @@ from numpy import product, ceil
 from src.declare4py.api_functions import check_trace_conformance
 from src.declare4py.core.query_checking import QueryChecking
 from src.declare4py.log_utils.log_analyzer import LogAnalyzer
-from src.declare4py.models.query_checking_results import BasicQueryCheckingResults
 from src.declare4py.log_utils.parsers.declare.decl_model import DeclModel
+from src.declare4py.models.basic_query_checking_results import BasicQueryCheckingResults
 from src.declare4py.mp_constants import Template, TraceState
 
 """
@@ -24,7 +24,7 @@ Attributes
     QueryChecking init
         inherits init attributes form the QueryChecking class
         
-    query_checking_results : dict
+    basic_query_checking_results : dict
         output type for this class
         
         
@@ -35,7 +35,7 @@ class BasicMPDeclareQueryChecking(QueryChecking, ABC):
 
     def __init__(self, consider_vacuity, template_str, max_declare_cardinality, activation, target, act_cond, trg_cond, time_cond, min_support):
         super().__init__(consider_vacuity, template_str, max_declare_cardinality, activation, target, act_cond, trg_cond, time_cond, min_support)
-        self.query_checking_results: dict = None
+        self.basic_query_checking_results: dict = None
 
     def run(self, consider_vacuity: bool,
                        template_str: str = None, max_declare_cardinality: int = 1,
@@ -80,7 +80,7 @@ class BasicMPDeclareQueryChecking(QueryChecking, ABC):
 
         Returns
         -------
-        query_checking_results
+        basic_query_checking_results
             dictionary with keys the DECLARE constraints satisfying the assignments. The values are a structured
             representations of these constraints.
         """
@@ -128,7 +128,7 @@ class BasicMPDeclareQueryChecking(QueryChecking, ABC):
         targets_to_check = self.get_log_alphabet_activities() if target is None else [target]
         activity_combos = tuple(filter(lambda c: c[0] != c[1], product(activations_to_check, targets_to_check)))
 
-        self.query_checking_results = {}
+        self.basic_query_checking_results = {}
 
         for template_str in templates_to_check:
             template_str, cardinality = re.search(r'(^.+?)(\d*$)', template_str).groups()
@@ -149,7 +149,7 @@ class BasicMPDeclareQueryChecking(QueryChecking, ABC):
                             "template": template_str, "activation": couple[0], "target": couple[1],
                             "act_cond": act_cond, "trg_cond": trg_cond, "time_cond": time_cond
                         }
-                        self.query_checking_results[constraint_str] = res_value
+                        self.basic_query_checking_results[constraint_str] = res_value
 
             else:  # unary template
                 constraint['condition'] = (act_cond, time_cond)
@@ -162,9 +162,9 @@ class BasicMPDeclareQueryChecking(QueryChecking, ABC):
                             "template": template_str, "activation": activity,
                             "act_cond": act_cond, "time_cond": time_cond
                         }
-                        self.query_checking_results[constraint_str] = res_value
+                        self.basic_query_checking_results[constraint_str] = res_value
 
-        return self.query_checking_results
+        return self.basic_query_checking_results
 
     def filter_query_checking(self, queries) -> list[list[str]]:
         """
@@ -183,16 +183,16 @@ class BasicMPDeclareQueryChecking(QueryChecking, ABC):
             list containing an entry for each constraint of query checking result. Each entry of the list is a list
             itself, containing the queried constraint elements.
         """
-        if self.query_checking_results is None:
+        if self.basic_query_checking_results is None:
             raise RuntimeError("You must run a query checking task before.")
         if len(queries) == 0 or len(queries) > 3:
             raise RuntimeError("The list of queries has to contain at least one query and three queries as maximum")
         assignments = []
-        for constraint in self.query_checking_results.keys():
+        for constraint in self.basic_query_checking_results.keys():
             tmp_answer = []
             for query in queries:
                 try:
-                    tmp_answer.append(self.query_checking_results[constraint][query])
+                    tmp_answer.append(self.basic_query_checking_results[constraint][query])
                 except KeyError:
                     print(f"{query} is not a valid query. Valid queries are template, activation, target.")
                     sys.exit(1)

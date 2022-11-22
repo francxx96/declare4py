@@ -4,7 +4,7 @@ from abc import ABC
 
 from src.declare4py.api_functions import check_trace_conformance
 from src.declare4py.core.conf_checking import ConformanceChecking
-from src.declare4py.models.conformance_checking_results import BasicConformanceCheckingResults
+from src.declare4py.models.basic_conformance_checking_results import BasicConformanceCheckingResults
 
 """
 Provides basic conformance checking functionalities
