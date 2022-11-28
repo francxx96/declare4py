@@ -13,7 +13,7 @@ def check_trace_conformance(trace, model, consider_vacuity):
     trace_results = {}
     
     for idx, constraint in enumerate(model.constraints):
-        constraint_str = model.serialized_constraints[idx]        
+        constraint_str = model.serialized_constraints[idx]
         rules["activation"] = constraint['condition'][0]
 
         if constraint['template'].supports_cardinality:
