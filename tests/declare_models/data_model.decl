@@ -50,7 +50,7 @@ Diagnose: YA, YB, YC, YD, QA, QB, QC, QD, QE, IA, IB, IC, ID, IE, AA, AB, AC, AD
 Hypoxie: false, true
 DiagnosticUrinarySediment: true, false
 DiagnosticECG: true, false
-Existence2[Admission NC]
+Existence2[Admission NC] | |
 Chain Response[Admission NC, Release B] |A.org:group is K |T.org:group is E |
 Chain Response[Admission NC, Release A] |A.org:group is I |T.org:group is E |133020,957701,s
 Chain Precedence[IV Liquid, Admission NC] |A.org:group is I |T.org:group is A |92,14473,s
