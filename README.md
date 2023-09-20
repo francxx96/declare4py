@@ -1,6 +1,6 @@
 # Disclaimer
 
-This versione is no longer supported and updated, please check the new Declare4Py versione [here](https://github.com/ivanDonadello/Declare4Py).
+This versione is no longer supported and updated, please check the new Declare4Py version [here](https://github.com/ivanDonadello/Declare4Py).
 
 # Declare4Py
 
