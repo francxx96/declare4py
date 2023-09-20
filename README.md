@@ -1,3 +1,7 @@
+# Disclaimer
+
+This versione is no longer supported and updated, please check the new Declare4Py versione [here](https://github.com/ivanDonadello/Declare4Py).
+
 # Declare4Py
 
 Declare4Py is a novel and easy-to-use Python package that covers the main tasks of process mining based on the 
